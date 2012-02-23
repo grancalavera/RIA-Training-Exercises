@@ -62,7 +62,7 @@
             FB.getLoginStatus(function(response){
                 switch(response.status) {
                     case 'connected':
-                        console.log('Get user info.');
+                        RIA.getUserInfo();
                         break;
                     case 'not-authorized':
                         console.log('User did not authorize us.');
@@ -72,6 +72,17 @@
                 }
             });
         }
+
+        RIA.getUserInfo = function () {
+            FB.api('/me', function(user){ // this needs to become a view
+                var userTemplate = _.template($('#fb-user-template').html());
+                $('#content').append(userTemplate({user:user}));
+                $('fb-logout').click(function(event){
+                    console.log('logout');
+                });
+            });
+        }
+
     </script>
 
     <!-- JS Libraries -->
@@ -84,8 +95,19 @@
     <script src="assets/js/facebook.js"></script>
 
     <!-- Templates -->
+
+    <!-- fb login -->
     <script type="text/template" id="fb-login-template">
-        <div class="fb-login-button" data-scope="email">Login with Facebook</div>
+        <div class="fb-login-button" data-scope="email,user_birthday">Login with Facebook</div>
+    </script>
+
+    <!-- fb user -->
+    <script type="text/template" id="fb-user-template">
+        <div id="fb-user">
+            <p><%= user.name %></p>
+            <div><img src="http://graph.facebook.com/<%= user.id %>/picture"></div>
+            <button id="fb-logout">Logout</button>
+        </div>
     </script>
 
   </body>
