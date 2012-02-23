@@ -59,7 +59,18 @@
     <script>
         RIA = {};
         RIA.facebookCallback = function(){
-            $('#content').append(_.template($('#fb-login-template').html()));
+            FB.getLoginStatus(function(response){
+                switch(response.status) {
+                    case 'connected':
+                        console.log('Get user info.');
+                        break;
+                    case 'not-authorized':
+                        console.log('User did not authorize us.');
+                        break;
+                    default:
+                        $('#content').append(_.template($('#fb-login-template').html()));
+                }
+            });
         }
     </script>
 
