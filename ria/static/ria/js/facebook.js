@@ -1,6 +1,6 @@
 window.fbAsyncInit = function() {
     FB.init({
-        appId: '',
+        appId: RIA.fbAppId,
         status: true, 
         cookie: true,
         xfbml: true,
@@ -8,7 +8,9 @@ window.fbAsyncInit = function() {
     });
 
     // This can be passed as part of the template, in the future
-    RIA.facebookCallback();
+    // RIA.facebookCallback();
+    $('#content').append(_.template($('#fb-login-template').html()));
+    console.log('append fb-login-template');
 };
 
 (function(d){
