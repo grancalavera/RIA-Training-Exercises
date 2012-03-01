@@ -10,7 +10,7 @@ define(
 
 function($, Backbone, _, 
     t_fbRoot, t_login){
-	var isInit, init, t, createLoginButton, events, User, createUser;
+	var isInit, init, t, createLoginButton, events, User, createUser, getApi;
 
     // Create an event dispatcher
     events = {};
@@ -60,6 +60,9 @@ function($, Backbone, _,
                 oauth: true,
             });
 
+            isInit = true;
+            events.trigger('fb:init', FB.api);
+            
             FB.Event.subscribe('auth.login', function(response){
                 events.trigger('fb:auth:login', response);
             });
@@ -80,7 +83,6 @@ function($, Backbone, _,
                 }
             })
 
-            isInit = true;
         }
 
         if ($(id).length) {
@@ -111,10 +113,24 @@ function($, Backbone, _,
         return new User;
     }
 
+    /**
+     * Checks if the FB.api is ready, and then returns it
+     */
+    getApi = function() {
+        try {
+            return FB.api;
+        } catch (error) {
+            console.error(error);
+        }finally {
+            return null;
+        }
+    }
+
 	return {
 		'init': init, 
         'createLoginButton': createLoginButton,
         'createUser': createUser,
-        'events': events
+        'events': events,
+        'getApi': getApi
 	};
 })
