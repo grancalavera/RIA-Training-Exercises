@@ -6,8 +6,9 @@ define([
     function(
         $, _, Backbone, facebook, 
         t_hello, t_text){
+        var initialize, loginButton;
 
-        var initialize = function (){
+        initialize = function (){
             $(document).ready(function(){
                 var loginButton;
 
@@ -15,22 +16,25 @@ define([
                 loginButton = $('body').append(facebook.loginButton());
                 $('.fb-login-button').hide();
 
-                facebook.events.on('facebook:init', function(message){
-                    console.log('from app > facebook:init ( ' + message + ' )');
-                });
+                facebook.events.on(
+                    'fb:auth:login fb:auth:statusChange fb:auth:authResponseChange', 
+                    updateFromResponse,
+                    this);
 
-                facebook.init('216629731768132', function(response){
-                    switch(response.status) {
-                        case 'connected':
-                            break;
-                        case 'not-authorized':
-                        case 'unknown':
-                        default:
-                            $('.fb-login-button').show();
-                    }
-                    $('body').append(_.template(t_text)({text: response.status}));
-                });
+                facebook.init('216629731768132');
             });
+        }
+
+        function updateFromResponse(response) {
+            switch (response.status) {
+                case 'connected':
+                    $('.fb-login-button').hide();
+                    break;
+                case 'unknown':
+                case 'not-authorized':
+                default:
+                    $('.fb-login-button').show();
+            }
         }
 
         return {initialize:initialize};

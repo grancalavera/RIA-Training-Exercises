@@ -31,7 +31,7 @@ function(
      * @param appId {String} The facebook app id
      * @param callback {Function} [Optional] A function to be executed once the facebook module has been initialized.
      */
-    init = function(appId, callback){
+    init = function(appId){
         var script, id;
         if (isInit) {
             return;
@@ -52,16 +52,23 @@ function(
                 oauth: true,
             });
 
-            FB.getLoginStatus(function(response) {
-                if (callback) {
-                    callback(response);
-                }
+            FB.Event.subscribe('auth.login', function(response){
+                events.trigger('fb:auth:login', response);
             });
 
-            events.trigger('facebook:init', 1);
-            events.trigger('facebook:init', 2);
-            events.trigger('facebook:init', 3);
-            events.trigger('facebook:init', 4);
+            FB.Event.subscribe('auth.statusChange', function(response){
+                events.trigger('fb:auth:statusChange', response);
+            });
+
+            FB.Event.subscribe('auth.authResponseChange', function(response){
+                events.trigger('fb:auth:authResponseChange', response);
+            });
+
+            // Force an status update upon initialzation
+            FB.getLoginStatus(function(response){
+                events.trigger('fb:auth:statusChange', response);
+            })
+
             isInit = true;
         }
 
