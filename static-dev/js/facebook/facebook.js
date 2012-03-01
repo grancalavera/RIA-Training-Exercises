@@ -46,7 +46,6 @@ function($, Backbone, _, t_fbRoot, t_login){
      */
     user = null;
 
-
     //--------------------------------------------------------------------------
     //
     // Models
@@ -87,14 +86,26 @@ function($, Backbone, _, t_fbRoot, t_login){
          * TBD
          */
         initialize: function(){
+            var self = this;
             this.model.bind('change', this.render, this);
+            $(this.el).append(this.tLogin(this.model.toJSON()));
+            FB.Event.subscribe('auth.login', function(response){
+                switch(response.status) {
+                    case 'connected':
+                        self.model.set(response.authResponse);
+                        break;
+                    case 'unknown':
+                    case 'not-authorized':
+                    default:
+                        self.model.clear();
+                }
+            });
         },
 
         /**
          * TBD
          */
         render: function(){
-            $(this.el).append(this.tLogin(this.model.toJSON()));
             return this;
         }
     });
@@ -209,6 +220,13 @@ function($, Backbone, _, t_fbRoot, t_login){
         return new LoginView({el:el, model:user});
     }
 
+    /**
+     * Updates the user data
+     */
+    function updateUser(){
+        console.log('updateUser');
+    }
+
     //--------------------------------------------------------------------------
     //
     // Exports
@@ -219,6 +237,7 @@ function($, Backbone, _, t_fbRoot, t_login){
         'init': init, 
         'api': api,
         'createLoginView': createLoginView,
-        'events': events
+        'events': events,
+        'updateUser': updateUser
     };
 })
