@@ -9,12 +9,16 @@ define(
 ],
 
 function($, Backbone, _, t_fbRoot, t_login){
-	var 
+    var 
         // Config
         events, isInit, t,
 
+        // Module internal state
+        user,
+
         // Models and Views
         User, LoginView;
+
 
     //--------------------------------------------------------------------------
     //
@@ -35,7 +39,13 @@ function($, Backbone, _, t_fbRoot, t_login){
         root: _.template(t_fbRoot),
         login: _.template(t_login),
         logout: ''
-    }
+    };
+
+    /**
+     * @private
+     */
+    user = null;
+
 
     //--------------------------------------------------------------------------
     //
@@ -50,6 +60,7 @@ function($, Backbone, _, t_fbRoot, t_login){
         initialize: function() {
         }
     });
+
 
     //--------------------------------------------------------------------------
     //
@@ -71,21 +82,19 @@ function($, Backbone, _, t_fbRoot, t_login){
          */
         tLogin: t.login,
         tLogout: t.logout,
-        user: new User, // this is a Backbone.Model
-        permissions: '', // and this just a String
 
         /**
          * TBD
          */
         initialize: function(){
-            this.user.bind('change', this.render, this);
-            $el.html(this.tLogin({permissions: this.permissions}));
+            this.model.bind('change', this.render, this);
         },
 
         /**
          * TBD
          */
         render: function(){
+            $(this.el).append(this.tLogin(this.model.toJSON()));
             return this;
         }
     });
@@ -102,7 +111,7 @@ function($, Backbone, _, t_fbRoot, t_login){
      * @param callback {Function} [Optional] A function to be executed once the 
      *  facebook module has been initialized.
      */
-    function init(appId) {
+    function init(appId, callback) {
         var script, id;
 
         if (isInit) {
@@ -125,6 +134,7 @@ function($, Backbone, _, t_fbRoot, t_login){
             });
 
             isInit = true;
+            user = new User;
             events.trigger('fb:init', FB.api);
 
             FB.Event.subscribe('auth.login', function(response){
@@ -145,7 +155,11 @@ function($, Backbone, _, t_fbRoot, t_login){
                 if (response.status !== 'connected') {
                     events.trigger('fb:auth:statusChange', response);
                 }
-            })
+            });
+
+            if (callback) {
+                callback();
+            }
 
         }
 
@@ -158,7 +172,7 @@ function($, Backbone, _, t_fbRoot, t_login){
         script.async = true;
         script.src = "//connect.facebook.net/en_US/all.js";
         $('head').append(script);
-	};
+    };
 
     /**
      * Returns a compiled template for the login button
@@ -167,22 +181,6 @@ function($, Backbone, _, t_fbRoot, t_login){
     function createLoginButton(permissions) {
         permissions = permissions || '';
         return t.login({ permissions:permissions });
-    }
-
-    /**
-     * Returns an empty facebook user model
-     * @see Backbone.Model
-     * @param json {Object} [Optional] An object with the user information.
-     */
-    function createUser(json) {
-        return new User(json);
-    }
-
-    /**
-     * Updates an User from a JSON object
-     */
-    function updateUser(json) {
-
     }
 
     /**
@@ -198,18 +196,29 @@ function($, Backbone, _, t_fbRoot, t_login){
         }
     }
 
+    /**
+     * Creates a login view and ties it with a user model. You need to initialize the Facebook module in order to create a LoginView.
+     * @param el {Element} The parent element for the view
+     * @params permissions {String} Space separated facebook permissions
+     */
+    function createLoginView (el, permissions) {
+        if (!isInit) {
+            throw new Error('You need to initialize the Facebook module in order to create a LoginView');
+        }
+        user.set('permissions', permissions);
+        return new LoginView({el:el, model:user});
+    }
+
     //--------------------------------------------------------------------------
     //
     // Exports
     //
     //--------------------------------------------------------------------------
 
-	return {
-		'init': init, 
-        'createLoginButton': createLoginButton,
-        'createUser': createUser,
-        'updateUser': updateUser,
-        'events': events,
-        'api': api
-	};
+    return {
+        'init': init, 
+        'api': api,
+        'createLoginView': createLoginView,
+        'events': events
+    };
 })

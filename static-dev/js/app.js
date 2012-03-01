@@ -9,30 +9,11 @@ define([
         function initialize() {
             $(document).ready(function(){
                 $('#content').html(_.template(t_hello)({message: 'Razorfish!'}));
-                // loginButton = $('#fb-login').append(facebook.createLoginButton('user_birthday'));
-                // $('.fb-login-button').hide();
-                // facebook.events.on('fb:auth:statusChange', function(response){
-                //     switch (response.status) {
-                //         case 'connected':
-                //             $('.fb-login-button').hide();
-                //             getUser();
-                //             break;
-                //         case 'unknown':
-                //         case 'not-authorized':
-                //         default:
-                //             $('.fb-login-button').show();
-                //             loggedUser = facebook.createUser();
-                //     }
-                // }, this);
-                facebook.init('216629731768132');
+                facebook.init('216629731768132', function(){
+                    facebook.createLoginView($('#fb-login'), 'user_birthday').render();
+                });
             });
         }
-
-        // function getUser(){
-        //     facebook.api('/me', function(user){
-        //         loggedUser = facebook.createUser(user);
-        //     });
-        // }
 
         return {initialize:initialize};
 });
