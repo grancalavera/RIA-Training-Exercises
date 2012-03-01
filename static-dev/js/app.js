@@ -6,20 +6,15 @@ define([
     function(
         $, _, Backbone, facebook, 
         t_hello, t_text){
-        var initialize, loginButton, FBApi;
+        var initialize, loginButton, loggedUser;
 
         initialize = function (){
             $(document).ready(function(){
-                var loginButton, FB_api;
+                var loginButton;
 
                 $('body').html(_.template(t_hello)({message: 'Razorfish!'}));
                 loginButton = $('body').append(facebook.createLoginButton('user_birthday'));
                 $('.fb-login-button').hide();
-
-                facebook.events.on('fb:init', function(api){
-                    console.log('init');
-                    FBApi = api;
-                });
 
                 facebook.events.on('fb:auth:statusChange', function(response){
                     console.log('statusChange');
@@ -40,9 +35,11 @@ define([
         }
 
         function getUser(){
-            FBApi('/me', function(user){
-                console.log(user);
+            facebook.api('/me', function(user){
+                loggedUser = facebook.createUser(user);
+                console.log(loggedUser);
             });
         }
+        
         return {initialize:initialize};
 });

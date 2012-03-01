@@ -10,7 +10,7 @@ define(
 
 function($, Backbone, _, 
     t_fbRoot, t_login){
-	var isInit, init, t, createLoginButton, events, User, createUser, getApi;
+	var isInit, init, t, createLoginButton, events, createUser, api, updateUser;
 
     // Create an event dispatcher
     events = {};
@@ -30,7 +30,6 @@ function($, Backbone, _,
      */
     User = Backbone.Model.extend({
         initialize: function() {
-            console.log('New Facebook user created');
         }
     });
     
@@ -62,7 +61,7 @@ function($, Backbone, _,
 
             isInit = true;
             events.trigger('fb:init', FB.api);
-            
+
             FB.Event.subscribe('auth.login', function(response){
                 events.trigger('fb:auth:login', response);
             });
@@ -108,17 +107,25 @@ function($, Backbone, _,
     /**
      * Returns an empty facebook user model
      * @see Backbone.Model
+     * @param json {Object} [Optional] An object with the user information.
      */
-    createUser = function() {
-        return new User;
+    createUser = function(json) {
+        return new User(json);
+    }
+
+    /**
+     * Updates an User from a JSON object
+     */
+    updateUser = function(json) {
+
     }
 
     /**
      * Checks if the FB.api is ready, and then returns it
      */
-    getApi = function() {
+    api = function() {
         try {
-            return FB.api;
+            return FB.api.apply(this, arguments);
         } catch (error) {
             console.error(error);
         }finally {
@@ -130,7 +137,8 @@ function($, Backbone, _,
 		'init': init, 
         'createLoginButton': createLoginButton,
         'createUser': createUser,
+        'updateUser': updateUser,
         'events': events,
-        'getApi': getApi
+        'api': api
 	};
 })
