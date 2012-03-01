@@ -2,6 +2,7 @@ define(
 	[
 		'order!libs/jquery/jquery-min',
 		'order!libs/underscore/underscore-min',
+		'order!libs/underscore/underscore-ext',
 		'order!libs/backbone/backbone-min'
 	], 
 	function(){
