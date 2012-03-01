@@ -6,40 +6,105 @@ define(
     // Templates
     'text!facebook/fb-root.html',
     'text!facebook/fb-login.html'
-], 
+],
 
-function($, Backbone, _, 
-    t_fbRoot, t_login){
-	var isInit, init, t, createLoginButton, events, createUser, api, updateUser;
+function($, Backbone, _, t_fbRoot, t_login){
+	var 
+        // Config
+        events, isInit, t,
 
-    // Create an event dispatcher
+        // Models and Views
+        User, LoginView;
+
+    //--------------------------------------------------------------------------
+    //
+    // Configuration
+    //
+    //--------------------------------------------------------------------------
+
+    /**
+     * @private
+     */
     events = {};
     _.extend(events, Backbone.Events);
 
     /**
      * @private
-     * Templates
      */
     t = {
         root: _.template(t_fbRoot),
-        login: _.template(t_login)
+        login: _.template(t_login),
+        logout: ''
     }
 
+    //--------------------------------------------------------------------------
+    //
+    // Models
+    //
+    //--------------------------------------------------------------------------
+
     /**
-     * @class User Defines a Facebook user
+     * @class {User} Defines a Facebook user
      */
     User = Backbone.Model.extend({
         initialize: function() {
         }
     });
-    
+
+    //--------------------------------------------------------------------------
+    //
+    // Views
+    //
+    //--------------------------------------------------------------------------
+
     /**
-     * Initializes the facebook module
-     * @param appId {String} The facebook app id
-     * @param callback {Function} [Optional] A function to be executed once the facebook module has been initialized.
+     * @class {LoginView}
+     * Defines a view that allows the user to log in and out of Facebook. Also
+     *  provides a short user feedback in the case the user is logged in.
+     * @param user {User} A facebook user
+     * @param permissions {String} [Optional] A space separated string of 
+     *  facebook permissions.
      */
-    init = function(appId){
+    LoginView = Backbone.View.extend({
+        /**
+         * @private
+         */
+        tLogin: t.login,
+        tLogout: t.logout,
+        user: new User, // this is a Backbone.Model
+        permissions: '', // and this just a String
+
+        /**
+         * TBD
+         */
+        initialize: function(){
+            this.user.bind('change', this.render, this);
+            $el.html(this.tLogin({permissions: this.permissions}));
+        },
+
+        /**
+         * TBD
+         */
+        render: function(){
+            return this;
+        }
+    });
+
+    //--------------------------------------------------------------------------
+    //
+    // API
+    //
+    //--------------------------------------------------------------------------
+
+    /**
+     * Initializes the Facebook api
+     * @param appId {String} The facebook app id
+     * @param callback {Function} [Optional] A function to be executed once the 
+     *  facebook module has been initialized.
+     */
+    function init(appId) {
         var script, id;
+
         if (isInit) {
             return;
         }
@@ -99,9 +164,9 @@ function($, Backbone, _,
      * Returns a compiled template for the login button
      * @params permissions {String} Space separated facebook permissions
      */
-    createLoginButton = function (permissions) {
+    function createLoginButton(permissions) {
         permissions = permissions || '';
-        return t.login({permissions:permissions});
+        return t.login({ permissions:permissions });
     }
 
     /**
@@ -109,21 +174,21 @@ function($, Backbone, _,
      * @see Backbone.Model
      * @param json {Object} [Optional] An object with the user information.
      */
-    createUser = function(json) {
+    function createUser(json) {
         return new User(json);
     }
 
     /**
      * Updates an User from a JSON object
      */
-    updateUser = function(json) {
+    function updateUser(json) {
 
     }
 
     /**
      * Checks if the FB.api is ready, and then returns it
      */
-    api = function() {
+    function api () {
         try {
             return FB.api.apply(this, arguments);
         } catch (error) {
@@ -132,6 +197,12 @@ function($, Backbone, _,
             return null;
         }
     }
+
+    //--------------------------------------------------------------------------
+    //
+    // Exports
+    //
+    //--------------------------------------------------------------------------
 
 	return {
 		'init': init, 
