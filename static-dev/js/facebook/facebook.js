@@ -8,12 +8,11 @@ define(
     'text!facebook/fb-login.html'
 ], 
 
-function(
-    $, Backbone, _, 
+function($, Backbone, _, 
     t_fbRoot, t_login){
-	var isInit, init, t, loginButton, events, on, off;
+	var isInit, init, t, createLoginButton, events, User, createUser;
 
-    // Make it an event dispatcher
+    // Create an event dispatcher
     events = {};
     _.extend(events, Backbone.Events);
 
@@ -25,6 +24,15 @@ function(
         root: _.template(t_fbRoot),
         login: _.template(t_login)
     }
+
+    /**
+     * @class User Defines a Facebook user
+     */
+    User = Backbone.Model.extend({
+        initialize: function() {
+            console.log('New Facebook user created');
+        }
+    });
     
     /**
      * Initializes the facebook module
@@ -64,9 +72,12 @@ function(
                 events.trigger('fb:auth:authResponseChange', response);
             });
 
-            // Force an status update upon initialzation
+            // Force an status update upon initialzation, for cases where the user is not "connected"
+            // "connected" will fire an "statusChange" event, so no need to fire it twice
             FB.getLoginStatus(function(response){
-                events.trigger('fb:auth:statusChange', response);
+                if (response.status !== 'connected') {
+                    events.trigger('fb:auth:statusChange', response);
+                }
             })
 
             isInit = true;
@@ -85,14 +96,25 @@ function(
 
     /**
      * Returns a compiled template for the login button
+     * @params permissions {String} Space separated facebook permissions
      */
-    loginButton = function () {
-        return t.login();
+    createLoginButton = function (permissions) {
+        permissions = permissions || '';
+        return t.login({permissions:permissions});
+    }
+
+    /**
+     * Returns an empty facebook user model
+     * @see Backbone.Model
+     */
+    createUser = function() {
+        return new User;
     }
 
 	return {
 		'init': init, 
-        'loginButton': loginButton,
+        'createLoginButton': createLoginButton,
+        'createUser': createUser,
         'events': events
 	};
 })

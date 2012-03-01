@@ -13,11 +13,11 @@ define([
                 var loginButton;
 
                 $('body').html(_.template(t_hello)({message: 'Razorfish!'}));
-                loginButton = $('body').append(facebook.loginButton());
+                loginButton = $('body').append(facebook.createLoginButton('user_birthday'));
                 $('.fb-login-button').hide();
 
                 facebook.events.on(
-                    'fb:auth:login fb:auth:statusChange fb:auth:authResponseChange', 
+                    'fb:auth:statusChange', 
                     updateFromResponse,
                     this);
 
@@ -29,6 +29,7 @@ define([
             switch (response.status) {
                 case 'connected':
                     $('.fb-login-button').hide();
+                    facebook.createUser();
                     break;
                 case 'unknown':
                 case 'not-authorized':
