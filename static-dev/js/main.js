@@ -1,3 +1,7 @@
+/**
+ * Bootstrapping for the main JS Application
+ * @author leon.coto@razorfish.com
+ */
 require.config({
     paths: {
         loader: 'libs/loader',
@@ -6,12 +10,13 @@ require.config({
         Backbone: 'libs/backbone/backbone'
     }
 });
-
-require([
+require(
+[
     'app',
     'order!libs/jquery/jquery-min',
     'order!libs/underscore/underscore-min',
     'order!libs/backbone/backbone-min',
-    ], function(App){
+], 
+function(App){
     App.initialize();
 });

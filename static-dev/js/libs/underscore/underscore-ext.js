@@ -39,7 +39,7 @@ _.mixin({
 		if (!ok) {
 			throw new Error(message ? prefix + ': ' + message : prefix);
 		}
-	},
+	}
 
 });
 })();

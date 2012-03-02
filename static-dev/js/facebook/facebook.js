@@ -1,3 +1,8 @@
+/**
+ * Facebook module. Provides basic initialzation functionality and shortcuts for
+ *  common taks, like generating a login/logout button with permissions,
+ *  the user as well as access to Facebook events using Backbone.Events.
+ */
 define(
 [
     // Libraries
@@ -5,10 +10,10 @@ define(
 
     // Templates
     'text!facebook/fb-root.html',
-    'text!facebook/fb-login.html'
+    'text!facebook/fb-login.html',
+    'text!facebook/fb-logout.html'
 ],
-
-function($, Backbone, _, t_fbRoot, t_login){
+function($, Backbone, _, t_fbRoot, t_login, t_logout){
     var 
     // Config
     events, isInit, t,
@@ -18,7 +23,6 @@ function($, Backbone, _, t_fbRoot, t_login){
 
     // Models and Views
     User, LoginView;
-
 
     //--------------------------------------------------------------------------
     //
@@ -38,7 +42,7 @@ function($, Backbone, _, t_fbRoot, t_login){
     t = {
         root: _.template(t_fbRoot),
         login: _.template(t_login),
-        logout: ''
+        logout: _.template(t_logout)
     };
 
     /**
@@ -60,7 +64,6 @@ function($, Backbone, _, t_fbRoot, t_login){
         }
     });
 
-
     //--------------------------------------------------------------------------
     //
     // Views
@@ -81,32 +84,60 @@ function($, Backbone, _, t_fbRoot, t_login){
          */
         tLogin: t.login,
         tLogout: t.logout,
+        firstRender: true,
 
         /**
-         * TBD
+         * @private
+         */
+        events: {
+            'click .fb-logout-button': 'logout'
+        },
+
+        /**
+         * @constructor All model (User) manipulation is handled by the module
+         * itself.
          */
         initialize: function(){
             var self = this;
             this.model.bind('change', this.render, this);
-            $(this.el).append(this.tLogin(this.model.toJSON()));
-            FB.Event.subscribe('auth.login', function(response){
-                switch(response.status) {
-                    case 'connected':
-                        self.model.set(response.authResponse);
-                        break;
-                    case 'unknown':
-                    case 'not-authorized':
-                    default:
-                        self.model.clear();
-                }
-            });
         },
 
         /**
-         * TBD
+         * @private
          */
         render: function(){
+            console.log('render');
+
+            var loginMode = true;
+
+            if (this.firstRender){
+                this.$el.html(this.tLogin(this.model.toJSON()));
+                this.$('.fb-login-button').hide();
+                this.firstRender = false;
+            }
+
+            console.log('has name: ' + this.model.has('name'));
+
+            // if (this.model.has('name')) {
+            //     this.$('.fb-login-button').hide();
+            //     this.$el.append(this.tLogout(this.model.toJSON()));
+            // } else {
+            //     this.$('.fb-login-button').show();
+            //     if(this.$('.fb-logout-button').length){
+            //         this.$('.fb-logout-button').remove();
+            //     }
+            // }
+
             return this;
+        },
+
+        /**
+         * @private
+         */
+        logout: function(){
+            FB.logout(function(response){
+                updateUserModel()
+            });
         }
     });
 
@@ -150,6 +181,7 @@ function($, Backbone, _, t_fbRoot, t_login){
 
             FB.Event.subscribe('auth.login', function(response){
                 events.trigger('fb:auth:login', response);
+                updateUser();
             });
 
             FB.Event.subscribe('auth.statusChange', function(response){
@@ -160,11 +192,14 @@ function($, Backbone, _, t_fbRoot, t_login){
                 events.trigger('fb:auth:authResponseChange', response);
             });
 
-            // Force an status update upon initialzation, for cases where the user is not "connected"
-            // "connected" will fire an "statusChange" event, so no need to fire it twice
+            // Force an status update upon initialzation, for cases where the 
+            // user is not "connected", "connected" will fire an "statusChange" 
+            // event, so no need to fire it twice
             FB.getLoginStatus(function(response){
                 if (response.status !== 'connected') {
                     events.trigger('fb:auth:statusChange', response);
+                } else {
+                    updateUser();
                 }
             });
 
@@ -201,14 +236,13 @@ function($, Backbone, _, t_fbRoot, t_login){
         try {
             return FB.api.apply(this, arguments);
         } catch (error) {
-            console.error(error);
-        }finally {
-            return null;
+            throw new Error(error);
         }
     }
 
     /**
-     * Creates a login view and ties it with a user model. You need to initialize the Facebook module in order to create a LoginView.
+     * Creates a login view and ties it with a user model. You need to 
+     * initialize the Facebook module in order to create a LoginView.
      * @param el {Element} The parent element for the view
      * @params permissions {String} Space separated facebook permissions
      */
@@ -224,7 +258,13 @@ function($, Backbone, _, t_fbRoot, t_login){
      * Updates the user data
      */
     function updateUser(){
-        console.log('updateUser');
+        FB.api('/me', function (response) {
+            _.extend(response, {
+                'permissions': user.get('permissions')
+            });
+            user.clear({silent:true});
+            user.set(response);
+        });
     }
 
     //--------------------------------------------------------------------------
@@ -237,7 +277,6 @@ function($, Backbone, _, t_fbRoot, t_login){
         'init': init, 
         'api': api,
         'createLoginView': createLoginView,
-        'events': events,
-        'updateUser': updateUser
+        'events': events
     };
 })
