@@ -7,7 +7,12 @@ _.mixin({
 	 * @param to {Date} [Optional] The final date.
 	 */
 	age: function(from, to) {
-		var age, m;
+		var age, m, msg;
+		msg = '_.age(): "from" and "to" must be Date objects.';
+		this.assert(from, this.isDate, msg);
+		if (to) {
+			this.assert(to, this.isDate, msg);
+		}
 		to = to || new Date();
 	    age = to.getFullYear() - from.getFullYear();
 	    m = to.getMonth() - from.getMonth();
@@ -15,6 +20,26 @@ _.mixin({
 	        age--;
 	    }
 	    return age;
-	}
+	},
+
+	/**
+	 * Asserts a value or array of values using an asertion function. 
+	 *  The assertion function must return true if the assertion is met or false otherwise.
+	 * @param value {Object} The value to assert. If "value" is an array, it will be applied to he assertion function, thus becoming the function's arguments.
+	 * @param fn {Function} The function used to perform the assertion.
+	 * @param message {String} [Optional] A message to display on the error thrown when the assertion fails.
+	 */
+	assert: function(value, fn, message) {
+		var prefix = 'Assertion failed', ok;
+		if (this.isArray(value)) {
+			ok = fn.apply(this, value);
+		} else {
+			ok = fn.call(this, value);
+		}
+		if (!ok) {
+			throw new Error(message ? prefix + ': ' + message : prefix);
+		}
+	},
+
 });
 })();
