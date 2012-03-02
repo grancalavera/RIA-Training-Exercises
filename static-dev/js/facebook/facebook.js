@@ -111,30 +111,35 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         initialize: function(){
             var self = this;
             this.model.get('user').bind('change', this.render, this);
+            this.model.get('session').bind('change', this.render, this);
+            this.$el.html(this.tLogin(this.model.get('session').toJSON()));
+            this.$('.fb-login-button').hide();
         },
 
         /**
          * @see Backbone.View#render
          */
         render: function(){
-            console.log(this.model.get('user').toJSON());
-            console.log(this.model.get('session').toJSON());
+            var user, session;
+            user = this.model.get('user');
+            session = this.model.get('session');
 
-            // var loginMode = true;
-            // if (this.firstRender){
-            //     this.$el.html(this.tLogin(this.model.toJSON()));
-            //     this.$('.fb-login-button').hide();
-            //     this.firstRender = false;
-            // }
-            // if (this.model.has('name')) {
-            //     this.$('.fb-login-button').hide();
-            //     this.$el.append(this.tLogout(this.model.toJSON()));
-            // } else {
-            //     this.$('.fb-login-button').show();
-            //     if(this.$('.fb-logout-button').length){
-            //         this.$('.fb-logout-button').remove();
-            //     }
-            // }
+            console.log('session.has(\'status\'): ' + session.has('status') + ' ' + session.get('status'));
+            console.log('user.has(\'name\'): ' + user.has('name') + ' ' + user.get('name'));
+            console.log('-');
+
+            if (session.has('status')){
+                if ((session.get('status') === 'connected') && 
+                    user.has('name')) {
+                    this.$('.fb-login-button').hide();
+                    this.$el.append(this.tLogout(this.model.toJSON()));
+                } else {
+                    this.$('.fb-login-button').show();
+                    if(this.$('.fb-logout-button').length){
+                        this.$('.fb-logout-button').remove();
+                    }
+                }
+            }
 
             return this;
         },
@@ -143,8 +148,10 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
          * @private
          */
         logout: function(){
+            var self = this;
             FB.logout(function(response){
-                updateUserModel()
+                self.model.get('user').clear();
+                updateSession(response);
             });
         }
     });
@@ -210,16 +217,19 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             events.trigger('fb:init', FB.api);
 
             FB.Event.subscribe('auth.login', function(response){
+                console.log('auth.login');
                 events.trigger('fb:auth:login', response);
                 updateUser();
             });
 
             FB.Event.subscribe('auth.statusChange', function(response){
+                console.log('auth.statusChange');
                 events.trigger('fb:auth:statusChange', response);
                 updateSession(response);
             });
 
             FB.Event.subscribe('auth.authResponseChange', function(response){
+                console.log('auth.authResponseChange');
                 events.trigger('fb:auth:authResponseChange', response);
             });
 
@@ -227,6 +237,8 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             // user is not "connected", "connected" will fire an "statusChange" 
             // event, so no need to fire it twice
             FB.getLoginStatus(function(response){
+                console.log('FB.getLoginStatus');
+                updateSession(response);
                 if (response.status !== 'connected') {
                     events.trigger('fb:auth:statusChange', response);
                 } else {
@@ -280,6 +292,7 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
      * Updates the user data
      */
     function updateUser(){
+        console.log('updateUser');
         FB.api('/me', function (response) {
             user.clear({silent:true});
             user.set(response);
