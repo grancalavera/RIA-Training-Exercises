@@ -8,10 +8,12 @@ define([
 
         function initialize() {
             $(document).ready(function(){
+                
                 $('#content').html(_.template(t_hello)({message: 'Razorfish!'}));
                 facebook.init('216629731768132', function(){
                     facebook.createLoginView($('#fb-login'), 'user_birthday').render();
                 });
+                
             });
         }
         return {initialize:initialize};

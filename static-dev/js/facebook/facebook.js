@@ -10,14 +10,14 @@ define(
 
 function($, Backbone, _, t_fbRoot, t_login){
     var 
-        // Config
-        events, isInit, t,
+    // Config
+    events, isInit, t,
 
-        // Module internal state
-        user,
+    // Module internal state
+    user,
 
-        // Models and Views
-        User, LoginView;
+    // Models and Views
+    User, LoginView;
 
 
     //--------------------------------------------------------------------------
