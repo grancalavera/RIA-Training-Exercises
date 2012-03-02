@@ -1,7 +1,7 @@
 /**
  * Facebook module. Provides basic initialzation functionality and shortcuts for
- *  common taks, like generating a login/logout button with permissions,
- *  the user as well as access to Facebook events using Backbone.Events.
+ * common taks, like generating a login/logout button with permissions, the user 
+ * as well as access to Facebook events using Backbone.Events.
  */
 define(
 [
@@ -19,10 +19,13 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     events, isInit, t,
 
     // Module internal state
-    user,
+    user, session, login,
 
-    // Models and Views
-    User, LoginView;
+    // Models
+    UserModel, SessionModel, LoginModel,
+
+    // Views
+    LoginView;
 
     //--------------------------------------------------------------------------
     //
@@ -57,12 +60,19 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     //--------------------------------------------------------------------------
 
     /**
-     * @class {User} Defines a Facebook user
+     * @class {UserModel} Model for a Facebook user
      */
-    User = Backbone.Model.extend({
-        initialize: function() {
-        }
-    });
+    UserModel = Backbone.Model.extend();
+
+    /**
+     * @class {SessionModel} Model for a Facebook session
+     */
+    SessionModel = Backbone.Model.extend();
+
+    /**
+     * @class {LoginModel} Model to keep track of the login status
+     */
+    LoginModel = Backbone.Model.extend();
 
     //--------------------------------------------------------------------------
     //
@@ -83,9 +93,10 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
          * @private
          */
         tLogin: t.login,
+        /**
+         * @private
+         */
         tLogout: t.logout,
-        firstRender: true,
-
         /**
          * @private
          */
@@ -99,25 +110,22 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
          */
         initialize: function(){
             var self = this;
-            this.model.bind('change', this.render, this);
+            this.model.get('user').bind('change', this.render, this);
         },
 
         /**
-         * @private
+         * @see Backbone.View#render
          */
         render: function(){
-            console.log('render');
+            console.log(this.model.get('user').toJSON());
+            console.log(this.model.get('session').toJSON());
 
-            var loginMode = true;
-
-            if (this.firstRender){
-                this.$el.html(this.tLogin(this.model.toJSON()));
-                this.$('.fb-login-button').hide();
-                this.firstRender = false;
-            }
-
-            console.log('has name: ' + this.model.has('name'));
-
+            // var loginMode = true;
+            // if (this.firstRender){
+            //     this.$el.html(this.tLogin(this.model.toJSON()));
+            //     this.$('.fb-login-button').hide();
+            //     this.firstRender = false;
+            // }
             // if (this.model.has('name')) {
             //     this.$('.fb-login-button').hide();
             //     this.$el.append(this.tLogout(this.model.toJSON()));
@@ -140,6 +148,23 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             });
         }
     });
+
+    //--------------------------------------------------------------------------
+    //
+    // Module methods
+    //
+    //--------------------------------------------------------------------------
+
+    /**
+     * @private
+     */
+    function updateSession(response) {
+        _.extend(response, {
+            permissions: session.get('permissions')
+        });
+        session.clear({silent:true});
+        session.set(response);
+    }
 
     //--------------------------------------------------------------------------
     //
@@ -176,7 +201,12 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             });
 
             isInit = true;
-            user = new User;
+
+            user = new UserModel;
+            session = new SessionModel;
+            login = new LoginModel;
+            login.set({user: user, session: session});
+
             events.trigger('fb:init', FB.api);
 
             FB.Event.subscribe('auth.login', function(response){
@@ -186,6 +216,7 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
 
             FB.Event.subscribe('auth.statusChange', function(response){
                 events.trigger('fb:auth:statusChange', response);
+                updateSession(response);
             });
 
             FB.Event.subscribe('auth.authResponseChange', function(response){
@@ -221,15 +252,6 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     };
 
     /**
-     * Returns a compiled template for the login button
-     * @params permissions {String} Space separated facebook permissions
-     */
-    function createLoginButton(permissions) {
-        permissions = permissions || '';
-        return t.login({ permissions:permissions });
-    }
-
-    /**
      * Checks if the FB.api is ready, and then returns it
      */
     function api () {
@@ -250,8 +272,8 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         if (!isInit) {
             throw new Error('You need to initialize the Facebook module in order to create a LoginView');
         }
-        user.set('permissions', permissions);
-        return new LoginView({el:el, model:user});
+        session.set('permissions', permissions);
+        return new LoginView({el:el, model:login});
     }
 
     /**
@@ -259,9 +281,6 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
      */
     function updateUser(){
         FB.api('/me', function (response) {
-            _.extend(response, {
-                'permissions': user.get('permissions')
-            });
             user.clear({silent:true});
             user.set(response);
         });
