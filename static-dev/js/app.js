@@ -25,6 +25,7 @@ function($, _, Backbone, facebook, t_hello, t_text){
     function initialize() {
         $(document).ready(function(){
             $('#content').html(_.template(t_hello)({message: 'Razorfish!'}));
+            // check for permission-less button
             facebook.init('216629731768132', function(){
                 facebook.createLoginView(
                     $('#fb-login'), 

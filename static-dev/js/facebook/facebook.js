@@ -9,9 +9,9 @@ define(
     'jQuery', 'Backbone', 'Underscore',
 
     // Templates
-    'text!facebook/fb-root.html',
-    'text!facebook/fb-login.html',
-    'text!facebook/fb-logout.html'
+    'text!/static/templates/facebook/fb-root.html',
+    'text!/static/templates/facebook/fb-login.html',
+    'text!/static/templates/facebook/fb-logout.html'
 ],
 function($, Backbone, _, t_fbRoot, t_login, t_logout){
     var 
@@ -120,20 +120,17 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
          * @see Backbone.View#render
          */
         render: function(){
-            var user, session;
+            var user, session, status;
+
             user = this.model.get('user');
             session = this.model.get('session');
 
-            console.log('session.has(\'status\'): ' + session.has('status') + ' ' + session.get('status'));
-            console.log('user.has(\'name\'): ' + user.has('name') + ' ' + user.get('name'));
-            console.log('-');
-
             if (session.has('status')){
-                if ((session.get('status') === 'connected') && 
-                    user.has('name')) {
+                status = session.get('status');
+                if ((status === 'connected') && user.has('name')) {
                     this.$('.fb-login-button').hide();
-                    this.$el.append(this.tLogout(this.model.toJSON()));
-                } else {
+                    this.$el.append(this.tLogout(user.toJSON()));
+                } else if (status !== 'connected') {
                     this.$('.fb-login-button').show();
                     if(this.$('.fb-logout-button').length){
                         this.$('.fb-logout-button').remove();
@@ -214,22 +211,17 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             login = new LoginModel;
             login.set({user: user, session: session});
 
-            events.trigger('fb:init', FB.api);
-
             FB.Event.subscribe('auth.login', function(response){
-                console.log('auth.login');
                 events.trigger('fb:auth:login', response);
                 updateUser();
             });
 
             FB.Event.subscribe('auth.statusChange', function(response){
-                console.log('auth.statusChange');
                 events.trigger('fb:auth:statusChange', response);
                 updateSession(response);
             });
 
             FB.Event.subscribe('auth.authResponseChange', function(response){
-                console.log('auth.authResponseChange');
                 events.trigger('fb:auth:authResponseChange', response);
             });
 
@@ -237,7 +229,6 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             // user is not "connected", "connected" will fire an "statusChange" 
             // event, so no need to fire it twice
             FB.getLoginStatus(function(response){
-                console.log('FB.getLoginStatus');
                 updateSession(response);
                 if (response.status !== 'connected') {
                     events.trigger('fb:auth:statusChange', response);
@@ -249,7 +240,6 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             if (callback) {
                 callback();
             }
-
         }
 
         if ($(id).length) {
@@ -292,7 +282,6 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
      * Updates the user data
      */
     function updateUser(){
-        console.log('updateUser');
         FB.api('/me', function (response) {
             user.clear({silent:true});
             user.set(response);
