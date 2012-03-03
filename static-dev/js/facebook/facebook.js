@@ -28,7 +28,7 @@ define(
 function($, Backbone, _, t_fbRoot, t_login, t_logout){
     var 
     // Config
-    events, isInit, t,
+    isInit, t,
 
     // Module internal state
     user, session, login,
@@ -109,11 +109,10 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         tLogin: t.login,
         tLogout: t.logout,
         events: {
-            'click .fb-logout-button': 'logout'
+            'click .fb-logout-button button': 'logout'
         },
 
         initialize: function(){
-            var self = this;
             this.model.get('user').bind('change', this.render, this);
             this.model.get('session').bind('change', this.render, this);
             this.$el.html(this.tLogin(this.model.get('session').toJSON()));
@@ -127,6 +126,9 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             session = this.model.get('session');
 
             if (session.has('status')){
+                console.log(user.toJSON());
+                console.log(session.toJSON());
+                
                 status = session.get('status');
                 if ((status === 'connected') && user.has('name')) {
                     this.$('.fb-login-button').hide();
@@ -252,12 +254,12 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
      * @params permissions {String} Space separated facebook permissions
      * @return {LoginView}
      */
-    function createLoginView (el, permissions) {
+    function createLoginView (permissions) {
         if (!isInit) {
             throw new Error('You need to initialize the Facebook module in order to create a LoginView');
         }
-        session.set('permissions', permissions);
-        return new LoginView({el:el, model:login});
+        session.set('permissions', permissions || '' );
+        return new LoginView({ model:login });
     }
 
     /**
