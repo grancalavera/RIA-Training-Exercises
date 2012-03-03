@@ -33,7 +33,6 @@ function($, _, Backbone, t_content){
     //
     //--------------------------------------------------------------------------
     
-    /*! @ignore */
     t = {
         content: _.template(t_content)
     };

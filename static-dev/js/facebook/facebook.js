@@ -45,7 +45,6 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     //
     //--------------------------------------------------------------------------
 
-    /*! @ignore */
     t = {
         root: _.template(t_fbRoot),
         login: _.template(t_login),
@@ -126,9 +125,6 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             session = this.model.get('session');
 
             if (session.has('status')){
-                console.log(user.toJSON());
-                console.log(session.toJSON());
-                
                 status = session.get('status');
                 if ((status === 'connected') && user.has('name')) {
                     this.$('.fb-login-button').hide();
