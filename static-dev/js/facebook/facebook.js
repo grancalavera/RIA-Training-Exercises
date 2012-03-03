@@ -1,8 +1,20 @@
 /**
- * Facebook module. Provides basic initialzation functionality and shortcuts for
+ * Facebook module. 
+ * 
+ * Provides basic initialzation functionality and shortcuts for
  * common taks, like generating a login/logout button with permissions, the user 
  * as well as access to Facebook events using Backbone.Events.
+ * 
+ * Dependencies:
+ * - RequireJS
+ * - RequireJS/text
+ * - Underscore.js
+ * - Backbone.js
+ * - Underscore-ext.js
+ * 
+ * @author leon.coto@razorfish.com
  */
+/*! @ignore */
 define(
 [
     // Libraries
@@ -33,25 +45,13 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     //
     //--------------------------------------------------------------------------
 
-    /**
-     * @private
-     */
-    events = {};
-    _.extend(events, Backbone.Events);
-
-    /**
-     * @private
-     */
+    /*! @ignore */
     t = {
         root: _.template(t_fbRoot),
         login: _.template(t_login),
         logout: _.template(t_logout)
     };
-
-    /**
-     * @private
-     */
-    user = null;
+    user, session, login = null;
 
     //--------------------------------------------------------------------------
     //
@@ -60,17 +60,34 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     //--------------------------------------------------------------------------
 
     /**
-     * @class {UserModel} Model for a Facebook user
+     * UserModel 
+     * 
+     * Models a Facebook user
      */
     UserModel = Backbone.Model.extend();
 
     /**
-     * @class {SessionModel} Model for a Facebook session
+     * SessionModel 
+     * 
+     * Models a Facebook session
      */
     SessionModel = Backbone.Model.extend();
 
     /**
-     * @class {LoginModel} Model to keep track of the login status
+     * LoginModel
+     *
+     * Usage:
+     *      var user, session, login;
+     *      user = new UserModel;
+     *      session = new SessionModel;
+     *      login = new LoginModel;
+     *      login.set ({
+     *          user: user,
+     *          session: session
+     *      })
+     * Models the relationship between a session and an user.
+     * @attribute user {UserModel}
+     * @attribute session {SessionModel} 
      */
     LoginModel = Backbone.Model.extend();
 
@@ -81,33 +98,20 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     //--------------------------------------------------------------------------
 
     /**
-     * @class {LoginView}
+     * LoginView
+     * 
      * Defines a view that allows the user to log in and out of Facebook. Also
-     *  provides a short user feedback in the case the user is logged in.
-     * @param user {User} A facebook user
-     * @param permissions {String} [Optional] A space separated string of 
-     *  facebook permissions.
+     * provides a short user feedback in the case the user is logged in.
+     * @attribute model {LoginModel} Allows the view to track changes in both 
+     * the current session and the current user.
      */
     LoginView = Backbone.View.extend({
-        /**
-         * @private
-         */
         tLogin: t.login,
-        /**
-         * @private
-         */
         tLogout: t.logout,
-        /**
-         * @private
-         */
         events: {
             'click .fb-logout-button': 'logout'
         },
 
-        /**
-         * @constructor All model (User) manipulation is handled by the module
-         * itself.
-         */
         initialize: function(){
             var self = this;
             this.model.get('user').bind('change', this.render, this);
@@ -116,9 +120,6 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             this.$('.fb-login-button').hide();
         },
 
-        /**
-         * @see Backbone.View#render
-         */
         render: function(){
             var user, session, status;
 
@@ -141,9 +142,6 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             return this;
         },
 
-        /**
-         * @private
-         */
         logout: function(){
             var self = this;
             FB.logout(function(response){
@@ -152,16 +150,14 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             });
         }
     });
-
+    
+    /*! @ignore */
     //--------------------------------------------------------------------------
     //
     // Module methods
     //
     //--------------------------------------------------------------------------
 
-    /**
-     * @private
-     */
     function updateSession(response) {
         _.extend(response, {
             permissions: session.get('permissions')
@@ -178,9 +174,10 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
 
     /**
      * Initializes the Facebook api
+     *
      * @param appId {String} The facebook app id
      * @param callback {Function} [Optional] A function to be executed once the 
-     *  facebook module has been initialized.
+     * facebook module has been initialized.
      */
     function init(appId, callback) {
         var script, id;
@@ -212,17 +209,14 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             login.set({user: user, session: session});
 
             FB.Event.subscribe('auth.login', function(response){
-                events.trigger('fb:auth:login', response);
                 updateUser();
             });
 
             FB.Event.subscribe('auth.statusChange', function(response){
-                events.trigger('fb:auth:statusChange', response);
                 updateSession(response);
             });
 
             FB.Event.subscribe('auth.authResponseChange', function(response){
-                events.trigger('fb:auth:authResponseChange', response);
             });
 
             // Force an status update upon initialzation, for cases where the 
@@ -230,9 +224,7 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             // event, so no need to fire it twice
             FB.getLoginStatus(function(response){
                 updateSession(response);
-                if (response.status !== 'connected') {
-                    events.trigger('fb:auth:statusChange', response);
-                } else {
+                if (response.status === 'connected') {
                     updateUser();
                 }
             });
@@ -254,21 +246,11 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     };
 
     /**
-     * Checks if the FB.api is ready, and then returns it
-     */
-    function api () {
-        try {
-            return FB.api.apply(this, arguments);
-        } catch (error) {
-            throw new Error(error);
-        }
-    }
-
-    /**
      * Creates a login view and ties it with a user model. You need to 
      * initialize the Facebook module in order to create a LoginView.
-     * @param el {Element} The parent element for the view
+     * @param el {DOMElement} The parent element for the view
      * @params permissions {String} Space separated facebook permissions
+     * @return {LoginView}
      */
     function createLoginView (el, permissions) {
         if (!isInit) {
@@ -279,7 +261,7 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     }
 
     /**
-     * Updates the user data
+     * Updates the user model for the module.
      */
     function updateUser(){
         FB.api('/me', function (response) {
@@ -290,14 +272,54 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
 
     //--------------------------------------------------------------------------
     //
+    // Facebook API proxies
+    //
+    //--------------------------------------------------------------------------
+    
+    /**
+     * Access to the Facebook Graph API
+     */
+    function api () {
+        try {
+            return FB.api;
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
+
+    /**
+     * Access to the Facebook Event module
+     */
+    function Event() {
+        try {
+            return FB.Event
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    //
     // Exports
     //
     //--------------------------------------------------------------------------
 
+    /**
+     * Listing of all module exports:
+     * 
+     * - `api`
+     * - `createLoginView`
+     * - `Event`
+     * - `init`
+     * - `session`
+     * - `user`
+     */
     return {
-        'init': init, 
         'api': api,
         'createLoginView': createLoginView,
-        'events': events
+        'Event': Event,
+        'init': init, 
+        'session': session,
+        'user': user
     };
 })

@@ -1,4 +1,6 @@
 /**
+ * Facebook Exercise #1
+ *
  * As a Client, I want to provide a way for my customers to Login or Register on 
  * my single website page, using their existing Facebook account. I need to 
  * know whether the Registered/Logged in customer is under or over 18 years old, 
@@ -40,6 +42,11 @@ function($, _, Backbone, facebook, t_hello, t_text){
     //
     //--------------------------------------------------------------------------
 
+    /**
+     * Exported APIs
+     * 
+     * - initialize: initializes the application.
+     */
     return {initialize:initialize};
 });
 
