@@ -53,11 +53,13 @@ function($, _, Backbone, facebook, t_ageAware){
             user.bind('change', this.user_changeHandler, this);
         },
 
+        // todo: need to check the permissions, bc if the user is authenticated
+        // from somewhere else the app breaks
         user_changeHandler: function(){
             if (user.has('birthday')) {
-                ageAware = new AgeAwareView({model:user});
-                this.$el.append(ageAware.render().el);
-            } else if (ageAware) {
+                ageAwareView = new AgeAwareView({model:user});
+                this.$el.append(ageAwareView.render().el);
+            } else if (ageAwareView) {
                 ageAware.remove();
                 ageAware = null;
             }
@@ -73,6 +75,11 @@ function($, _, Backbone, facebook, t_ageAware){
 
         template: t.ageAware,
         ageLimit: 18,
+
+        events: {
+            'click .fb-send-dialog': 'send',
+            'click .fb-feed-dialog': 'feed'
+        },
 
         initialize: function(){
             this.model.bind('change', this.render, this);
@@ -95,8 +102,35 @@ function($, _, Backbone, facebook, t_ageAware){
 
             this.$el.html(this.template({message:message, label:label, access:access}));
             return this;
+        },
+
+        dialog: function(method, event) {
+            var link, name;
+            link = $(event.currentTarget).attr('href');
+            name = $(event.currentTarget).attr('title');
+            FB.ui({
+                method: method,
+                name: name,
+                link: link,
+            }, function(response){
+                if (response) {
+                    alert('Thanks for sharing!');
+                } else {
+                    alert('Something went wrong. Why not try again?');
+                }
+            });
+        },
+
+        send: function (event){
+            event.preventDefault();
+            this.dialog('send', event);
+        },
+
+        feed: function (event) {
+            event.preventDefault();
+            this.dialog('feed', event);
         }
-    })
+    });
 
     //--------------------------------------------------------------------------
     //
@@ -106,7 +140,7 @@ function($, _, Backbone, facebook, t_ageAware){
     /*! @ignore */
 
     function facebookInitHandler() {
-        var perms = 'user_birthday';
+        var perms = 'user_birthday read_mailbox';
 
         user = facebook.getUser();
         session = facebook.getSession();
@@ -115,10 +149,7 @@ function($, _, Backbone, facebook, t_ageAware){
 
         mainView = new MainView();
         $('#content').append(mainView.render().el);
-
-        // ageAware = new AgeAwareView({model:user});
     }
-
     //--------------------------------------------------------------------------
     //
     // API

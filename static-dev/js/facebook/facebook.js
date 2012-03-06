@@ -286,34 +286,6 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
 
     //--------------------------------------------------------------------------
     //
-    // Facebook API proxies
-    //
-    //--------------------------------------------------------------------------
-    
-    /**
-     * Access to the Facebook Graph API
-     */
-    function api () {
-        try {
-            return FB.api;
-        } catch (error) {
-            throw new Error(error);
-        }
-    }
-
-    /**
-     * Access to the Facebook Event module
-     */
-    function Event() {
-        try {
-            return FB.Event
-        } catch (error) {
-            throw new Error(error);
-        }
-    }
-
-    //--------------------------------------------------------------------------
-    //
     // Exports
     //
     //--------------------------------------------------------------------------
@@ -321,21 +293,15 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     /**
      * Listing of all module exports:
      * 
-     * - `api`
      * - `createLoginView`
-     * - `Event`
      * - `init`
-     * - `session`
-     * - `user`
+     * - `getSession`
+     * - `getUser`
      */
     return {
-        'api': api,
         'createLoginView': createLoginView,
-        'Event': Event,
-        'getUser': getUser,
         'getSession': getSession,
-        'init': init, 
-        'session': this.session,
-        'user': user
+        'getUser': getUser,
+        'init': init
     };
 })
