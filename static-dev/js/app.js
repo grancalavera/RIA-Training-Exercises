@@ -53,6 +53,11 @@ function($, _, Backbone, facebook, t_ageAware){
             user.bind('change', this.user_changeHandler, this);
         },
 
+        events: {
+            'click .fb-send-dialog': 'send',
+            'click .fb-feed-dialog': 'feed'
+        },
+        
         // todo: need to check the permissions, bc if the user is authenticated
         // from somewhere else the app breaks
         user_changeHandler: function(){
@@ -63,49 +68,11 @@ function($, _, Backbone, facebook, t_ageAware){
                 ageAware.remove();
                 ageAware = null;
             }
-        }
-    });
-
-    /**
-     * AgeAwareView
-     * 
-     * Renders different content based on the user's age
-     */
-    AgeAwareView = Backbone.View.extend({
-
-        template: t.ageAware,
-        ageLimit: 18,
-
-        events: {
-            'click .fb-send-dialog': 'send',
-            'click .fb-feed-dialog': 'feed'
-        },
-
-        initialize: function(){
-            this.model.bind('change', this.render, this);
-        },
-
-        render: function(){
-            var age, html, message, label, access;
-
-            age = _.age(new Date(this.model.get('birthday')));
-            if (age >= this.ageLimit) {
-                message = 'You can access all the content without restrictions.';
-                access = 'Unrestricted';
-                label = 'label-success';
-
-            } else {
-                message = 'You have restricted access to the content.';
-                access = 'Restricted';
-                label = 'label-warning';
-            }
-
-            this.$el.html(this.template({message:message, label:label, access:access}));
-            return this;
         },
 
         dialog: function(method, event) {
             var link, name;
+            
             link = $(event.currentTarget).attr('href');
             name = $(event.currentTarget).attr('title');
             FB.ui({
@@ -130,6 +97,42 @@ function($, _, Backbone, facebook, t_ageAware){
             event.preventDefault();
             this.dialog('feed', event);
         }
+    });
+
+    /**
+     * AgeAwareView
+     * 
+     * Renders different content based on the user's age
+     */
+    AgeAwareView = Backbone.View.extend({
+
+        template: t.ageAware,
+        ageLimit: 18,
+
+
+        initialize: function(){
+            this.model.bind('change', this.render, this);
+        },
+
+        render: function(){
+            var age, html, message, label, access;
+
+            age = _.age(new Date(this.model.get('birthday')));
+            if (age >= this.ageLimit) {
+                message = 'You can access all the content without restrictions.';
+                access = 'Unrestricted';
+                label = 'label-success';
+
+            } else {
+                message = 'You have restricted access to the content.';
+                access = 'Restricted';
+                label = 'label-warning';
+            }
+
+            this.$el.html(this.template({message:message, label:label, access:access}));
+            return this;
+        },
+
     });
 
     //--------------------------------------------------------------------------
