@@ -26,10 +26,10 @@ function($, _, Backbone, facebook, t_ageAware){
     t,
 
     // Module internal state
-    user, session, ageAwareView,
+    user, session, mainView, ageAwareView,
 
     // Views
-    AgeAwareView;
+    Main, AgeAwareView;
 
     t = {
         ageAware: _.template(t_ageAware)
@@ -42,36 +42,58 @@ function($, _, Backbone, facebook, t_ageAware){
     //
     //--------------------------------------------------------------------------
 
+    /**
+     * MainView
+     * 
+     * Acts as the main view controller, coordinating the interaction between 
+     * different models and views.
+     */
+    MainView = Backbone.View.extend({
+        initialize: function() {
+            user.bind('change', this.user_changeHandler, this);
+        },
+
+        user_changeHandler: function(){
+            if (user.has('birthday')) {
+                ageAware = new AgeAwareView({model:user});
+                this.$el.append(ageAware.render().el);
+            } else if (ageAware) {
+                ageAware.remove();
+                ageAware = null;
+            }
+        }
+    });
+
+    /**
+     * AgeAwareView
+     * 
+     * Renders different content based on the user's age
+     */
     AgeAwareView = Backbone.View.extend({
 
         template: t.ageAware,
+        ageLimit: 18,
 
         initialize: function(){
             this.model.bind('change', this.render, this);
         },
 
         render: function(){
-            var age, underAge = 18, html, message, label, access;
+            var age, html, message, label, access;
 
-            if (this.model.has('birthday')) {
-                age = _.age(new Date(this.model.get('birthday')));
-                if (age >= 18) {
-                    message = 'You can access all the content without restrictions.';
-                    access = 'Unrestricted';
-                    label = 'label-success';
+            age = _.age(new Date(this.model.get('birthday')));
+            if (age >= this.ageLimit) {
+                message = 'You can access all the content without restrictions.';
+                access = 'Unrestricted';
+                label = 'label-success';
 
-                } else {
-                    message = 'You have restricted access to the content.';
-                    access = 'Restricted';
-                    label = 'label-warning';
-                }
-                html = this.template({message:message, label:label, access:access});
             } else {
-                html = 'Login to get content recommendations.';
+                message = 'You have restricted access to the content.';
+                access = 'Restricted';
+                label = 'label-warning';
             }
 
-            this.$el.html(html);
-
+            this.$el.html(this.template({message:message, label:label, access:access}));
             return this;
         }
     })
@@ -91,8 +113,10 @@ function($, _, Backbone, facebook, t_ageAware){
 
         $('#fb-login').html(facebook.createLoginView(perms).render().el);
 
-        ageAware = new AgeAwareView({model:user});
-        $('#content').append(ageAware.render().el);
+        mainView = new MainView();
+        $('#content').append(mainView.render().el);
+
+        // ageAware = new AgeAwareView({model:user});
     }
 
     //--------------------------------------------------------------------------

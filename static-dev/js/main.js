@@ -18,7 +18,8 @@ require.config({
         jQuery: 'libs/jquery/jquery',
         Underscore: 'libs/underscore/underscore',
         Backbone: 'libs/backbone/backbone'
-    }
+    },
+    urlArgs: "bust=v2"
 });
 
 require(
