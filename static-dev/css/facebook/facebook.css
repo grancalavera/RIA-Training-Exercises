@@ -13,3 +13,6 @@
   vertical-align: middle;
   *margin-left: .3em;
 }
+
+#content .ageAware {margin: 5px 0;}
+#content .ageAware .label {margin-right: 4px;}

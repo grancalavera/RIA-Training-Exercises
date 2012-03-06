@@ -20,9 +20,7 @@ require.config({
         Backbone: 'libs/backbone/backbone'
     }
 });
-/**
- * @api true
- */
+
 require(
 [
     'app',

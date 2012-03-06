@@ -26,6 +26,13 @@ define(
     'text!/static/templates/facebook/fb-logout.html'
 ],
 function($, Backbone, _, t_fbRoot, t_login, t_logout){
+
+    //--------------------------------------------------------------------------
+    //
+    // Configuration
+    //
+    //--------------------------------------------------------------------------
+
     var 
     // Config
     isInit, t,
@@ -38,12 +45,6 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
 
     // Views
     LoginView;
-
-    //--------------------------------------------------------------------------
-    //
-    // Configuration
-    //
-    //--------------------------------------------------------------------------
 
     t = {
         root: _.template(t_fbRoot),
@@ -201,9 +202,10 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
 
             isInit = true;
 
-            user = new UserModel;
-            session = new SessionModel;
-            login = new LoginModel;
+            user = new UserModel();
+            session = new SessionModel();
+            login = new LoginModel();
+
             login.set({user: user, session: session});
 
             FB.Event.subscribe('auth.login', function(response){
@@ -268,6 +270,20 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         });
     }
 
+    /**
+     * Returns the current UserModel instance
+     */
+    function getUser() {
+        return user;
+    }
+
+    /**
+     * Returns the current SessionModel instance
+     */
+    function getSession() {
+        return session;
+    }
+
     //--------------------------------------------------------------------------
     //
     // Facebook API proxies
@@ -316,8 +332,10 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         'api': api,
         'createLoginView': createLoginView,
         'Event': Event,
+        'getUser': getUser,
+        'getSession': getSession,
         'init': init, 
-        'session': session,
+        'session': this.session,
         'user': user
     };
 })
