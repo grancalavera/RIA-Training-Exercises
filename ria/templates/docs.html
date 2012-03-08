@@ -1,0 +1,21 @@
+<html>
+<head>
+    <title>RIA Training: Documentation</title>
+</head>
+<body>
+    <h1>RIA Training: Documentation</h1>
+
+    {% autoescape off %}
+    {% for module in modules %}
+        {% for section in module %}
+            {% if section.ignore%}
+            {% else %}
+            {{ section.description.summary }}
+            {{ section.description.full }}
+            <hr>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    {% endautoescape %}
+</body>
+</html>

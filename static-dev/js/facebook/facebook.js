@@ -38,10 +38,10 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     isInit, t,
 
     // Module internal state
-    user, session, login,
+    user, session, login, permissions,
 
     // Models
-    UserModel, SessionModel, LoginModel,
+    UserModel, SessionModel, LoginModel, PermissionsModel,
 
     // Views
     LoginView;
@@ -51,13 +51,22 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         login: _.template(t_login),
         logout: _.template(t_logout)
     };
-    user, session, login = null;
+    user = session = login = permissions = null;
 
     //--------------------------------------------------------------------------
     //
     // Models
     //
     //--------------------------------------------------------------------------
+
+    /**
+     * PermissionsModel
+     * 
+     * Models the list of requested and granted Facebook permissions
+     * @attribute requested {Array}
+     * @attribute granted {Array}
+     */
+    PermissionsModel = Backbone.Model.extend();
 
     /**
      * UserModel 
@@ -174,12 +183,15 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     /**
      * Initializes the Facebook api
      *
-     * @param appId {String} The facebook app id
+     * @param options {Object} Initialization options:
+     *  - appId {String} Facebook app id
+     *  - permissions {Array} [Optional] The initial set of permissions required
+     *  in order to get the miminal viable product (MVP)
      * @param callback {Function} [Optional] A function to be executed once the 
      * facebook module has been initialized.
      */
-    function init(appId, callback) {
-        var script, id;
+    function init(options, callback) {
+        var script, id, p;
 
         if (isInit) {
             return;
@@ -191,9 +203,33 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             $('body').append(t.root());
         }
 
+        user = new UserModel();
+        session = new SessionModel();
+        login = new LoginModel();
+        permissions = new PermissionsModel();
+        if (_.has(options, 'permissions')){
+            permissions.set('requested', options.permissions);
+        }
+        login.set({user: user, session: session});
+
+        //----------------------------------
+        //
+        // START: Network is down :(
+        //
+        //----------------------------------
+        if (callback) {
+            callback();
+        }
+        return;
+        //----------------------------------
+        //
+        // END: Network is down :(
+        //
+        //----------------------------------
+
         window.fbAsyncInit = function() {
             FB.init({
-                appId: appId,
+                appId: options.appId,
                 status: true, 
                 cookie: true,
                 xfbml: true,
@@ -202,21 +238,14 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
 
             isInit = true;
 
-            user = new UserModel();
-            session = new SessionModel();
-            login = new LoginModel();
-
-            login.set({user: user, session: session});
-
             FB.Event.subscribe('auth.login', function(response){
                 updateUser();
             });
-
             FB.Event.subscribe('auth.statusChange', function(response){
                 updateSession(response);
             });
-
             FB.Event.subscribe('auth.authResponseChange', function(response){
+
             });
 
             // Force an status update upon initialzation, for cases where the 
@@ -234,10 +263,9 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             }
         }
 
-        if ($(id).length) {
-            return;
+        if ($(id).length) { 
+            return; 
         }
-
         script = document.createElement('script'); 
         script.id = id; 
         script.async = true;
@@ -284,6 +312,13 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         return session;
     }
 
+    /**
+     * Returns the current PermissionsModel instance
+     */
+    function getPermissions() {
+        return permissions;
+    }
+
     //--------------------------------------------------------------------------
     //
     // Exports
@@ -302,6 +337,7 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         'createLoginView': createLoginView,
         'getSession': getSession,
         'getUser': getUser,
+        'getPermissions': getPermissions,
         'init': init
     };
 })

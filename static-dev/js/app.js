@@ -1,10 +1,12 @@
 /**
- * Facebook Exercise #1
+ * RIA Training
+ * 
+ * Completed:
+ *  - Facebook 1
+ *  - Facebook 2
+ *  - Facebook 3
+ *  - Facebook 4
  *
- * As a Client, I want to provide a way for my customers to Login or Register on 
- * my single website page, using their existing Facebook account. I need to 
- * know whether the Registered/Logged in customer is under or over 18 years old, 
- * in order to display relevant content to each age group.</p>
  */
 /*! @ignore */
 define(
@@ -72,7 +74,7 @@ function($, _, Backbone, facebook, t_ageAware){
 
         dialog: function(method, event) {
             var link, name;
-            
+
             link = $(event.currentTarget).attr('href');
             name = $(event.currentTarget).attr('title');
             FB.ui({
@@ -153,6 +155,11 @@ function($, _, Backbone, facebook, t_ageAware){
         mainView = new MainView();
         $('#content').append(mainView.render().el);
     }
+
+    function facebookInitHandler2() {
+        console.log(facebook.getPermissions().toJSON());
+    }
+
     //--------------------------------------------------------------------------
     //
     // API
@@ -164,7 +171,19 @@ function($, _, Backbone, facebook, t_ageAware){
      */
     function initialize() {
         $(document).ready(function(){
-            facebook.init('216629731768132', facebookInitHandler);
+            var birthday = '1976/03/23';
+            // birthday = new Date(birthday);
+            console.log(birthday);
+            console.log(_.age(birthday));
+
+            // facebook.init({
+            //     appId: '216629731768132',
+            //     permissions: [
+            //         'user_birthday',
+            //         'read_mailbox',
+            //         'read_mailbox'
+            //    ], 
+            // }, facebookInitHandler2);
         });
     }
 

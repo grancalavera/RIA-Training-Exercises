@@ -1,0 +1,22 @@
+[
+  {
+    "tags": [],
+    "description": {
+      "full": "<ul>\n<li>Returns the age in years for a time interval, defined by a pair of <code>Date</code> objects.\n<ul><li>If a final date is not provided, age will use new Date() to calculate today's date.</li>\n<li>@param from {Date} The initial date.</li>\n<li>@param to {Date} [Optional] The final date.</li></ul></li>\n</ul>",
+      "summary": "<ul>\n<li>Returns the age in years for a time interval, defined by a pair of <code>Date</code> objects.\n<ul><li>If a final date is not provided, age will use new Date() to calculate today's date.</li>\n<li>@param from {Date} The initial date.</li>\n<li>@param to {Date} [Optional] The final date.</li></ul></li>\n</ul>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "age: function(from, to) {\n\t\tvar age, m, msg;\n\t\tmsg = '_.age(): \"from\" and \"to\" must be Date objects.';\n\t\tthis.assert(from, this.isDate, msg);\n\t\tif (to) {\n\t\t\tthis.assert(to, this.isDate, msg);\n\t\t}\n\t\tto = to || new Date();\n\t    age = to.getFullYear() - from.getFullYear();\n\t    m = to.getMonth() - from.getMonth();\n\t    if (m < 0 || (m === 0 && to.getDate() < from.getDate())) {\n\t        age--;\n\t    }\n\t    return age;\n\t},"
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<ul>\n<li>Asserts a value or array of values using an asertion function. \n<ul><li>The assertion function must return true if the assertion is met or false otherwise.</li>\n<li>@param value {Object} The value to assert.</li>\n<li>@param fn {Function} The function used to perform the assertion.</li>\n<li>@param message {String} [Optional] A message to display on the error thrown when the assertion fails.</li></ul></li>\n</ul>",
+      "summary": "<ul>\n<li>Asserts a value or array of values using an asertion function. \n<ul><li>The assertion function must return true if the assertion is met or false otherwise.</li>\n<li>@param value {Object} The value to assert.</li>\n<li>@param fn {Function} The function used to perform the assertion.</li>\n<li>@param message {String} [Optional] A message to display on the error thrown when the assertion fails.</li></ul></li>\n</ul>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "assert: function(value, fn, message) {\n\t\tvar prefix = 'Assertion failed';\n\t\tif (!fn.call(this, value)) {\n\t\t\tthrow new Error(message ? prefix + ': ' + message : prefix);\n\t\t}\n\t}\n\n});\n})();"
+  }
+]

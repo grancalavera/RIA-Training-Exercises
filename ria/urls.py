@@ -6,7 +6,8 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-    url('', 'ria.views.home', name='home'),
+    url(r'^docs/', 'ria.views.docs', name='docs'),
+    url(r'^$', 'ria.views.home', name='home'),
     # Examples:
     # url(r'^$', 'ria.views.home', name='home'),
     # url(r'^ria/', include('ria.foo.urls')),

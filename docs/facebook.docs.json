@@ -1,0 +1,272 @@
+[
+  {
+    "tags": [
+      {
+        "type": "author",
+        "string": "leon.coto@razorfish.com"
+      }
+    ],
+    "description": {
+      "full": "<p>Facebook module. </p>\n\n<p>Provides basic initialzation functionality and shortcuts for<br />common taks, like generating a login/logout button with permissions, the user <br />as well as access to Facebook events using Backbone.Events.</p>\n\n<h2>Dependencies</h2>\n\n<ul>\n<li>RequireJS</li>\n<li>RequireJS/text</li>\n<li>Underscore.js</li>\n<li>Backbone.js</li>\n<li>Underscore-ext.js</li>\n</ul>",
+      "summary": "<p>Facebook module. </p>",
+      "body": "<p>Provides basic initialzation functionality and shortcuts for<br />common taks, like generating a login/logout button with permissions, the user <br />as well as access to Facebook events using Backbone.Events.</p>\n\n<h2>Dependencies</h2>\n\n<ul>\n<li>RequireJS</li>\n<li>RequireJS/text</li>\n<li>Underscore.js</li>\n<li>Backbone.js</li>\n<li>Underscore-ext.js</li>\n</ul>"
+    },
+    "isPrivate": false,
+    "ignore": false
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>@ignore</p>",
+      "summary": "<p>@ignore</p>",
+      "body": ""
+    },
+    "ignore": true,
+    "code": "define(\n[\n    // Libraries\n    'jQuery', 'Backbone', 'Underscore',\n\n    // Templates\n    'text!/static/templates/facebook/fb-root.html',\n    'text!/static/templates/facebook/fb-login.html',\n    'text!/static/templates/facebook/fb-logout.html'\n],\nfunction($, Backbone, _, t_fbRoot, t_login, t_logout){\n\n    //--------------------------------------------------------------------------\n    //\n    // Configuration\n    //\n    //--------------------------------------------------------------------------\n\n    var \n    // Config\n    isInit, t,\n\n    // Module internal state\n    user, session, login, permissions,\n\n    // Models\n    UserModel, SessionModel, LoginModel, PermissionsModel,\n\n    // Views\n    LoginView;\n\n    t = {\n        root: _.template(t_fbRoot),\n        login: _.template(t_login),\n        logout: _.template(t_logout)\n    };\n    user = session = login = permissions = null;\n\n    //--------------------------------------------------------------------------\n    //\n    // Models\n    //\n    //--------------------------------------------------------------------------"
+  },
+  {
+    "tags": [
+      {
+        "type": "attribute",
+        "string": "requested {Array}"
+      },
+      {
+        "type": "attribute",
+        "string": "granted {Array}"
+      }
+    ],
+    "description": {
+      "full": "<p>PermissionsModel</p>\n\n<p>Models the list of requested and granted Facebook permissions</p>",
+      "summary": "<p>PermissionsModel</p>",
+      "body": "<p>Models the list of requested and granted Facebook permissions</p>"
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "PermissionsModel = Backbone.Model.extend();"
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>UserModel </p>\n\n<p>Models a Facebook user</p>",
+      "summary": "<p>UserModel </p>",
+      "body": "<p>Models a Facebook user</p>"
+    },
+    "ignore": false,
+    "code": "UserModel = Backbone.Model.extend();"
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>SessionModel </p>\n\n<p>Models a Facebook session</p>",
+      "summary": "<p>SessionModel </p>",
+      "body": "<p>Models a Facebook session</p>"
+    },
+    "ignore": false,
+    "code": "SessionModel = Backbone.Model.extend();"
+  },
+  {
+    "tags": [
+      {
+        "type": "attribute",
+        "string": "user {UserModel}"
+      },
+      {
+        "type": "attribute",
+        "string": "session {SessionModel}"
+      }
+    ],
+    "description": {
+      "full": "<p>LoginModel</p>\n\n<h2>Usage</h2>\n\n<pre><code> var user, session, login;\n user = new UserModel;\n session = new SessionModel;\n login = new LoginModel;\n login.set ({\n     user: user,\n     session: session\n })\n</code></pre>\n\n<p>Models the relationship between a session and an user.</p>",
+      "summary": "<p>LoginModel</p>",
+      "body": "<h2>Usage</h2>\n\n<pre><code> var user, session, login;\n user = new UserModel;\n session = new SessionModel;\n login = new LoginModel;\n login.set ({\n     user: user,\n     session: session\n })\n</code></pre>\n\n<p>Models the relationship between a session and an user.</p>"
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "LoginModel = Backbone.Model.extend();\n\n    //--------------------------------------------------------------------------\n    //\n    // Views\n    //\n    //--------------------------------------------------------------------------"
+  },
+  {
+    "tags": [
+      {
+        "type": "attribute",
+        "string": "model {LoginModel} Allows the view to track changes in both "
+      },
+      {
+        "type": "the",
+        "string": "current session and the current user."
+      }
+    ],
+    "description": {
+      "full": "<p>LoginView</p>\n\n<p>Defines a view that allows the user to log in and out of Facebook. Also<br />provides a short user feedback in the case the user is logged in.</p>",
+      "summary": "<p>LoginView</p>",
+      "body": "<p>Defines a view that allows the user to log in and out of Facebook. Also<br />provides a short user feedback in the case the user is logged in.</p>"
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "LoginView = Backbone.View.extend({\n        tLogin: t.login,\n        tLogout: t.logout,\n        events: {\n            'click .fb-logout-button button': 'logout'\n        },\n\n        initialize: function(){\n            this.model.get('user').bind('change', this.render, this);\n            this.model.get('session').bind('change', this.render, this);\n            this.$el.html(this.tLogin(this.model.get('session').toJSON()));\n            this.$('.fb-login-button').hide();\n        },\n\n        render: function(){\n            var user, session, status;\n\n            user = this.model.get('user');\n            session = this.model.get('session');\n\n            if (session.has('status')){\n                status = session.get('status');\n                if ((status === 'connected') && user.has('name')) {\n                    this.$('.fb-login-button').hide();\n                    this.$el.append(this.tLogout(user.toJSON()));\n                } else if (status !== 'connected') {\n                    this.$('.fb-login-button').show();\n                    if(this.$('.fb-logout-button').length){\n                        this.$('.fb-logout-button').remove();\n                    }\n                }\n            }\n\n            return this;\n        },\n\n        logout: function(){\n            var self = this;\n            FB.logout(function(response){\n                self.model.get('user').clear();\n                updateSession(response);\n            });\n        }\n    });"
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>@ignore</p>",
+      "summary": "<p>@ignore</p>",
+      "body": ""
+    },
+    "ignore": true,
+    "code": "//--------------------------------------------------------------------------\n    //\n    // Module methods\n    //\n    //--------------------------------------------------------------------------\n\n    function updateSession(response) {\n        _.extend(response, {\n            permissions: session.get('permissions')\n        });\n        session.clear({silent:true});\n        session.set(response);\n    }\n\n    //--------------------------------------------------------------------------\n    //\n    // API\n    //\n    //--------------------------------------------------------------------------"
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "options"
+        ],
+        "name": "{Object}",
+        "description": "Initialization options:"
+      },
+      {
+        "type": "",
+        "string": "- appId {String} Facebook app id"
+      },
+      {
+        "type": "",
+        "string": "- permissions {Array} [Optional] The initial set of permissions required"
+      },
+      {
+        "type": "",
+        "string": "in order to get the miminal viable product (MVP)"
+      },
+      {
+        "type": "param",
+        "types": [
+          "callback"
+        ],
+        "name": "{Function}",
+        "description": "[Optional] A function to be executed once the "
+      },
+      {
+        "type": "facebook",
+        "string": "module has been initialized."
+      }
+    ],
+    "description": {
+      "full": "<p>Initializes the Facebook api</p>",
+      "summary": "<p>Initializes the Facebook api</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "function init(options, callback) {\n        var script, id, p;\n\n        if (isInit) {\n            return;\n        }\n\n        id = 'facebook-jssdk';\n\n        if (!$('#fb-root').length) {\n            $('body').append(t.root());\n        }\n\n        user = new UserModel();\n        session = new SessionModel();\n        login = new LoginModel();\n        permissions = new PermissionsModel();\n        if (_.has(options, 'permissions')){\n            permissions.set('requested', options.permissions);\n        }\n        login.set({user: user, session: session});\n\n        //----------------------------------\n        //\n        // START: Network is down :(\n        //\n        //----------------------------------\n        if (callback) {\n            callback();\n        }\n        return;\n        //----------------------------------\n        //\n        // END: Network is down :(\n        //\n        //----------------------------------\n\n        window.fbAsyncInit = function() {\n            FB.init({\n                appId: options.appId,\n                status: true, \n                cookie: true,\n                xfbml: true,\n                oauth: true,\n            });\n\n            isInit = true;\n\n            FB.Event.subscribe('auth.login', function(response){\n                updateUser();\n            });\n            FB.Event.subscribe('auth.statusChange', function(response){\n                updateSession(response);\n            });\n            FB.Event.subscribe('auth.authResponseChange', function(response){\n\n            });\n\n            // Force an status update upon initialzation, for cases where the \n            // user is not \"connected\", \"connected\" will fire an \"statusChange\" \n            // event, so no need to fire it twice\n            FB.getLoginStatus(function(response){\n                updateSession(response);\n                if (response.status === 'connected') {\n                    updateUser();\n                }\n            });\n\n            if (callback) {\n                callback();\n            }\n        }\n\n        if ($(id).length) { \n            return; \n        }\n        script = document.createElement('script'); \n        script.id = id; \n        script.async = true;\n        script.src = \"//connect.facebook.net/en_US/all.js\";\n        $('head').append(script);\n    };",
+    "ctx": {
+      "type": "function",
+      "name": "init",
+      "string": "init()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "el"
+        ],
+        "name": "{DOMElement}",
+        "description": "The parent element for the view"
+      },
+      {
+        "type": "params",
+        "string": "permissions {String} Space separated facebook permissions"
+      },
+      {
+        "type": "return",
+        "types": [
+          "LoginView"
+        ],
+        "description": ""
+      }
+    ],
+    "description": {
+      "full": "<p>Creates a login view and ties it with a user model. You need to <br />initialize the Facebook module in order to create a LoginView.</p>",
+      "summary": "<p>Creates a login view and ties it with a user model. You need to <br />initialize the Facebook module in order to create a LoginView.</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "function createLoginView (permissions) {\n        if (!isInit) {\n            throw new Error('You need to initialize the Facebook module in order to create a LoginView');\n        }\n        session.set('permissions', permissions || '' );\n        return new LoginView({ model:login });\n    }",
+    "ctx": {
+      "type": "function",
+      "name": "createLoginView",
+      "string": "createLoginView()"
+    }
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>Updates the user model for the module.</p>",
+      "summary": "<p>Updates the user model for the module.</p>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "function updateUser(){\n        FB.api('/me', function (response) {\n            user.clear({silent:true});\n            user.set(response);\n        });\n    }",
+    "ctx": {
+      "type": "function",
+      "name": "updateUser",
+      "string": "updateUser()"
+    }
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>Returns the current UserModel instance</p>",
+      "summary": "<p>Returns the current UserModel instance</p>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "function getUser() {\n        return user;\n    }",
+    "ctx": {
+      "type": "function",
+      "name": "getUser",
+      "string": "getUser()"
+    }
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>Returns the current SessionModel instance</p>",
+      "summary": "<p>Returns the current SessionModel instance</p>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "function getSession() {\n        return session;\n    }",
+    "ctx": {
+      "type": "function",
+      "name": "getSession",
+      "string": "getSession()"
+    }
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>Returns the current PermissionsModel instance</p>",
+      "summary": "<p>Returns the current PermissionsModel instance</p>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "function getPermissions() {\n        return permissions;\n    }\n\n    //--------------------------------------------------------------------------\n    //\n    // Exports\n    //\n    //--------------------------------------------------------------------------",
+    "ctx": {
+      "type": "function",
+      "name": "getPermissions",
+      "string": "getPermissions()"
+    }
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<h2>Listing of all module exports</h2>\n\n<ul>\n<li><code>createLoginView</code></li>\n<li><code>init</code></li>\n<li><code>getSession</code></li>\n<li><code>getUser</code></li>\n</ul>",
+      "summary": "<h2>Listing of all module exports</h2>",
+      "body": "<ul>\n<li><code>createLoginView</code></li>\n<li><code>init</code></li>\n<li><code>getSession</code></li>\n<li><code>getUser</code></li>\n</ul>"
+    },
+    "ignore": false,
+    "code": "return {\n        'createLoginView': createLoginView,\n        'getSession': getSession,\n        'getUser': getUser,\n        'getPermissions': getPermissions,\n        'init': init\n    };\n})"
+  }
+]
