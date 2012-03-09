@@ -1,18 +1,17 @@
 /**
- * Facebook module. 
+ * Facebook module 
  * 
- * Provides basic initialzation functionality and shortcuts for
- * common taks, like generating a login/logout button with permissions, the user 
- * as well as access to Facebook events using Backbone.Events.
- * 
+ * Provides basic initialization functionality and shortcuts for common tasks.
+ *
  * Dependencies:
+ *
  * - RequireJS
  * - RequireJS/text
+ * - jQuery
  * - Underscore.js
  * - Backbone.js
  * - Underscore-ext.js
  * 
- * @author leon.coto@razorfish.com
  */
 /*! @ignore */
 define(
@@ -60,32 +59,43 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     //--------------------------------------------------------------------------
 
     /**
-     * PermissionsModel
+     * `PermissionsModel`
      * 
-     * Models the list of requested and granted Facebook permissions
-     * @attribute requested {Array}
-     * @attribute granted {Array}
+     * Models the list of requested and granted Facebook permissions.
+     *
+     * Usage:
+     *
+     *      var permissions = new PermissionsModel();
+     *      permissions.set({'requested': ['user_birthday', 'read_mailbox']});
+     *
+     * @param {Array} requested Model attribute: The liste of permissions requested by the application.
+     * @param {Array} granted Model attribute: The list of permissions granted by the user.
      */
     PermissionsModel = Backbone.Model.extend();
 
     /**
-     * UserModel 
+     * `UserModel`
      * 
      * Models a Facebook user
+     * 
      */
     UserModel = Backbone.Model.extend();
 
     /**
-     * SessionModel 
+     * `SessionModel`
      * 
      * Models a Facebook session
+     *
      */
     SessionModel = Backbone.Model.extend();
 
     /**
-     * LoginModel
+     * `LoginModel`
      *
+     * Models the relationship between a session and an user.
+     * 
      * Usage:
+     *
      *      var user, session, login;
      *      user = new UserModel;
      *      session = new SessionModel;
@@ -93,10 +103,10 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
      *      login.set ({
      *          user: user,
      *          session: session
-     *      })
-     * Models the relationship between a session and an user.
-     * @attribute user {UserModel}
-     * @attribute session {SessionModel} 
+     *      });
+     *
+     * @param {UserModel} user
+     * @param {SessionModel} session
      */
     LoginModel = Backbone.Model.extend();
 
@@ -107,12 +117,11 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     //--------------------------------------------------------------------------
 
     /**
-     * LoginView
+     * `LoginView`
      * 
-     * Defines a view that allows the user to log in and out of Facebook. Also
-     * provides a short user feedback in the case the user is logged in.
-     * @attribute model {LoginModel} Allows the view to track changes in both 
-     * the current session and the current user.
+     * Defines a view that allows the user to log in and out of Facebook. 
+     *
+     * @param {LoginModel} model Allows the view to track changes in both the current session and the current user.
      */
     LoginView = Backbone.View.extend({
         tLogin: t.login,
@@ -181,14 +190,14 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     //--------------------------------------------------------------------------
 
     /**
+     * `facebook.init()`
+     * 
      * Initializes the Facebook api
      *
-     * @param options {Object} Initialization options:
-     *  - appId {String} Facebook app id
-     *  - permissions {Array} [Optional] The initial set of permissions required
-     *  in order to get the miminal viable product (MVP)
-     * @param callback {Function} [Optional] A function to be executed once the 
-     * facebook module has been initialized.
+     * @param {Object} options Initialization options (listed below).
+     * @param {String} options.appId Facebook app id
+     * @param {Array} options.permissions The initial set of permissions requested by the application. Default: <code>undefined</code>
+     * @param {Function} callback A function to be executed once the facebook module has been initialized. Default: <code>null</code>
      */
     function init(options, callback) {
         var script, id, p;
@@ -211,21 +220,6 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             permissions.set('requested', options.permissions);
         }
         login.set({user: user, session: session});
-
-        //----------------------------------
-        //
-        // START: Network is down :(
-        //
-        //----------------------------------
-        if (callback) {
-            callback();
-        }
-        return;
-        //----------------------------------
-        //
-        // END: Network is down :(
-        //
-        //----------------------------------
 
         window.fbAsyncInit = function() {
             FB.init({
@@ -274,10 +268,11 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     };
 
     /**
-     * Creates a login view and ties it with a user model. You need to 
-     * initialize the Facebook module in order to create a LoginView.
-     * @param el {DOMElement} The parent element for the view
-     * @params permissions {String} Space separated facebook permissions
+     * `facebook.createLoginView()`
+     *
+     * Creates a login view and ties it with a user model. You need to initialize the Facebook module in order to create a LoginView.
+     * 
+     * @param {String|Array} permissions  Space separated facebook permissions, or an <code>Array</code> of Facebook permissions.
      * @return {LoginView}
      */
     function createLoginView (permissions) {
@@ -289,7 +284,9 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     }
 
     /**
-     * Updates the user model for the module.
+     * `facebook.updateUser()`
+     *
+     * Calls `FB.api('/me')` and updates the `UserModel` instance in the Facebook module.
      */
     function updateUser(){
         FB.api('/me', function (response) {
@@ -299,21 +296,33 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     }
 
     /**
-     * Returns the current UserModel instance
+     * `facebook.getUser()` 
+     *
+     * Returns the current `UserModel` instance.
+     *
+     * @return {UserModel}
      */
     function getUser() {
         return user;
     }
 
     /**
-     * Returns the current SessionModel instance
+     * `facebook.getSession()`
+     * 
+     * Returns the current `SessionModel` instance.
+     *
+     * @return {SessionModel}
      */
     function getSession() {
         return session;
     }
 
     /**
-     * Returns the current PermissionsModel instance
+     * `facebook.getPermissions()`
+     * 
+     * Returns the current `PermissionsModel` instance.
+     *
+     * @return {PermissionsModel}
      */
     function getPermissions() {
         return permissions;
@@ -326,18 +335,19 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     //--------------------------------------------------------------------------
 
     /**
-     * Listing of all module exports:
+     * Module exports
      * 
      * - `createLoginView`
-     * - `init`
+     * - `getPermissions`
      * - `getSession`
      * - `getUser`
+     * - `init`
      */
     return {
         'createLoginView': createLoginView,
+        'getPermissions': getPermissions,
         'getSession': getSession,
         'getUser': getUser,
-        'getPermissions': getPermissions,
         'init': init
     };
 })

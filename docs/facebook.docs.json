@@ -1,17 +1,11 @@
 [
   {
-    "tags": [
-      {
-        "type": "author",
-        "string": "leon.coto@razorfish.com"
-      }
-    ],
+    "tags": [],
     "description": {
-      "full": "<p>Facebook module. </p>\n\n<p>Provides basic initialzation functionality and shortcuts for<br />common taks, like generating a login/logout button with permissions, the user <br />as well as access to Facebook events using Backbone.Events.</p>\n\n<h2>Dependencies</h2>\n\n<ul>\n<li>RequireJS</li>\n<li>RequireJS/text</li>\n<li>Underscore.js</li>\n<li>Backbone.js</li>\n<li>Underscore-ext.js</li>\n</ul>",
-      "summary": "<p>Facebook module. </p>",
-      "body": "<p>Provides basic initialzation functionality and shortcuts for<br />common taks, like generating a login/logout button with permissions, the user <br />as well as access to Facebook events using Backbone.Events.</p>\n\n<h2>Dependencies</h2>\n\n<ul>\n<li>RequireJS</li>\n<li>RequireJS/text</li>\n<li>Underscore.js</li>\n<li>Backbone.js</li>\n<li>Underscore-ext.js</li>\n</ul>"
+      "full": "<p>Facebook module </p>\n\n<p>Provides basic initialization functionality and shortcuts for common tasks.</p>\n\n<h2>Dependencies</h2>\n\n<ul>\n<li>RequireJS</li>\n<li>RequireJS/text</li>\n<li>jQuery</li>\n<li>Underscore.js</li>\n<li>Backbone.js</li>\n<li>Underscore-ext.js</li>\n</ul>",
+      "summary": "<p>Facebook module </p>",
+      "body": "<p>Provides basic initialization functionality and shortcuts for common tasks.</p>\n\n<h2>Dependencies</h2>\n\n<ul>\n<li>RequireJS</li>\n<li>RequireJS/text</li>\n<li>jQuery</li>\n<li>Underscore.js</li>\n<li>Backbone.js</li>\n<li>Underscore-ext.js</li>\n</ul>"
     },
-    "isPrivate": false,
     "ignore": false
   },
   {
@@ -27,18 +21,26 @@
   {
     "tags": [
       {
-        "type": "attribute",
-        "string": "requested {Array}"
+        "type": "param",
+        "types": [
+          "Array"
+        ],
+        "name": "requested",
+        "description": "Model attribute: The liste of permissions requested by the application."
       },
       {
-        "type": "attribute",
-        "string": "granted {Array}"
+        "type": "param",
+        "types": [
+          "Array"
+        ],
+        "name": "granted",
+        "description": "Model attribute: The list of permissions granted by the user."
       }
     ],
     "description": {
-      "full": "<p>PermissionsModel</p>\n\n<p>Models the list of requested and granted Facebook permissions</p>",
-      "summary": "<p>PermissionsModel</p>",
-      "body": "<p>Models the list of requested and granted Facebook permissions</p>"
+      "full": "<p><code>PermissionsModel</code></p>\n\n<p>Models the list of requested and granted Facebook permissions.</p>\n\n<h2>Usage</h2>\n\n<pre><code> var permissions = new PermissionsModel();\n permissions.set({'requested': ['user_birthday', 'read_mailbox']});\n</code></pre>",
+      "summary": "<p><code>PermissionsModel</code></p>",
+      "body": "<p>Models the list of requested and granted Facebook permissions.</p>\n\n<h2>Usage</h2>\n\n<pre><code> var permissions = new PermissionsModel();\n permissions.set({'requested': ['user_birthday', 'read_mailbox']});\n</code></pre>"
     },
     "isPrivate": false,
     "ignore": false,
@@ -47,8 +49,8 @@
   {
     "tags": [],
     "description": {
-      "full": "<p>UserModel </p>\n\n<p>Models a Facebook user</p>",
-      "summary": "<p>UserModel </p>",
+      "full": "<p><code>UserModel</code></p>\n\n<p>Models a Facebook user</p>",
+      "summary": "<p><code>UserModel</code></p>",
       "body": "<p>Models a Facebook user</p>"
     },
     "ignore": false,
@@ -57,8 +59,8 @@
   {
     "tags": [],
     "description": {
-      "full": "<p>SessionModel </p>\n\n<p>Models a Facebook session</p>",
-      "summary": "<p>SessionModel </p>",
+      "full": "<p><code>SessionModel</code></p>\n\n<p>Models a Facebook session</p>",
+      "summary": "<p><code>SessionModel</code></p>",
       "body": "<p>Models a Facebook session</p>"
     },
     "ignore": false,
@@ -67,18 +69,26 @@
   {
     "tags": [
       {
-        "type": "attribute",
-        "string": "user {UserModel}"
+        "type": "param",
+        "types": [
+          "UserModel"
+        ],
+        "name": "user",
+        "description": ""
       },
       {
-        "type": "attribute",
-        "string": "session {SessionModel}"
+        "type": "param",
+        "types": [
+          "SessionModel"
+        ],
+        "name": "session",
+        "description": ""
       }
     ],
     "description": {
-      "full": "<p>LoginModel</p>\n\n<h2>Usage</h2>\n\n<pre><code> var user, session, login;\n user = new UserModel;\n session = new SessionModel;\n login = new LoginModel;\n login.set ({\n     user: user,\n     session: session\n })\n</code></pre>\n\n<p>Models the relationship between a session and an user.</p>",
-      "summary": "<p>LoginModel</p>",
-      "body": "<h2>Usage</h2>\n\n<pre><code> var user, session, login;\n user = new UserModel;\n session = new SessionModel;\n login = new LoginModel;\n login.set ({\n     user: user,\n     session: session\n })\n</code></pre>\n\n<p>Models the relationship between a session and an user.</p>"
+      "full": "<p><code>LoginModel</code></p>\n\n<p>Models the relationship between a session and an user.</p>\n\n<h2>Usage</h2>\n\n<pre><code> var user, session, login;\n user = new UserModel;\n session = new SessionModel;\n login = new LoginModel;\n login.set ({\n     user: user,\n     session: session\n });\n</code></pre>",
+      "summary": "<p><code>LoginModel</code></p>",
+      "body": "<p>Models the relationship between a session and an user.</p>\n\n<h2>Usage</h2>\n\n<pre><code> var user, session, login;\n user = new UserModel;\n session = new SessionModel;\n login = new LoginModel;\n login.set ({\n     user: user,\n     session: session\n });\n</code></pre>"
     },
     "isPrivate": false,
     "ignore": false,
@@ -87,18 +97,18 @@
   {
     "tags": [
       {
-        "type": "attribute",
-        "string": "model {LoginModel} Allows the view to track changes in both "
-      },
-      {
-        "type": "the",
-        "string": "current session and the current user."
+        "type": "param",
+        "types": [
+          "LoginModel"
+        ],
+        "name": "model",
+        "description": "Allows the view to track changes in both the current session and the current user."
       }
     ],
     "description": {
-      "full": "<p>LoginView</p>\n\n<p>Defines a view that allows the user to log in and out of Facebook. Also<br />provides a short user feedback in the case the user is logged in.</p>",
-      "summary": "<p>LoginView</p>",
-      "body": "<p>Defines a view that allows the user to log in and out of Facebook. Also<br />provides a short user feedback in the case the user is logged in.</p>"
+      "full": "<p><code>LoginView</code></p>\n\n<p>Defines a view that allows the user to log in and out of Facebook. </p>",
+      "summary": "<p><code>LoginView</code></p>",
+      "body": "<p>Defines a view that allows the user to log in and out of Facebook. </p>"
     },
     "isPrivate": false,
     "ignore": false,
@@ -119,44 +129,44 @@
       {
         "type": "param",
         "types": [
-          "options"
+          "Object"
         ],
-        "name": "{Object}",
-        "description": "Initialization options:"
-      },
-      {
-        "type": "",
-        "string": "- appId {String} Facebook app id"
-      },
-      {
-        "type": "",
-        "string": "- permissions {Array} [Optional] The initial set of permissions required"
-      },
-      {
-        "type": "",
-        "string": "in order to get the miminal viable product (MVP)"
+        "name": "options",
+        "description": "Initialization options (listed below)."
       },
       {
         "type": "param",
         "types": [
-          "callback"
+          "String"
         ],
-        "name": "{Function}",
-        "description": "[Optional] A function to be executed once the "
+        "name": "options.appId",
+        "description": "Facebook app id"
       },
       {
-        "type": "facebook",
-        "string": "module has been initialized."
+        "type": "param",
+        "types": [
+          "Array"
+        ],
+        "name": "options.permissions",
+        "description": "The initial set of permissions requested by the application. Default: <code>undefined</code>"
+      },
+      {
+        "type": "param",
+        "types": [
+          "Function"
+        ],
+        "name": "callback",
+        "description": "A function to be executed once the facebook module has been initialized. Default: <code>null</code>"
       }
     ],
     "description": {
-      "full": "<p>Initializes the Facebook api</p>",
-      "summary": "<p>Initializes the Facebook api</p>",
-      "body": ""
+      "full": "<p><code>facebook.init()</code></p>\n\n<p>Initializes the Facebook api</p>",
+      "summary": "<p><code>facebook.init()</code></p>",
+      "body": "<p>Initializes the Facebook api</p>"
     },
     "isPrivate": false,
     "ignore": false,
-    "code": "function init(options, callback) {\n        var script, id, p;\n\n        if (isInit) {\n            return;\n        }\n\n        id = 'facebook-jssdk';\n\n        if (!$('#fb-root').length) {\n            $('body').append(t.root());\n        }\n\n        user = new UserModel();\n        session = new SessionModel();\n        login = new LoginModel();\n        permissions = new PermissionsModel();\n        if (_.has(options, 'permissions')){\n            permissions.set('requested', options.permissions);\n        }\n        login.set({user: user, session: session});\n\n        //----------------------------------\n        //\n        // START: Network is down :(\n        //\n        //----------------------------------\n        if (callback) {\n            callback();\n        }\n        return;\n        //----------------------------------\n        //\n        // END: Network is down :(\n        //\n        //----------------------------------\n\n        window.fbAsyncInit = function() {\n            FB.init({\n                appId: options.appId,\n                status: true, \n                cookie: true,\n                xfbml: true,\n                oauth: true,\n            });\n\n            isInit = true;\n\n            FB.Event.subscribe('auth.login', function(response){\n                updateUser();\n            });\n            FB.Event.subscribe('auth.statusChange', function(response){\n                updateSession(response);\n            });\n            FB.Event.subscribe('auth.authResponseChange', function(response){\n\n            });\n\n            // Force an status update upon initialzation, for cases where the \n            // user is not \"connected\", \"connected\" will fire an \"statusChange\" \n            // event, so no need to fire it twice\n            FB.getLoginStatus(function(response){\n                updateSession(response);\n                if (response.status === 'connected') {\n                    updateUser();\n                }\n            });\n\n            if (callback) {\n                callback();\n            }\n        }\n\n        if ($(id).length) { \n            return; \n        }\n        script = document.createElement('script'); \n        script.id = id; \n        script.async = true;\n        script.src = \"//connect.facebook.net/en_US/all.js\";\n        $('head').append(script);\n    };",
+    "code": "function init(options, callback) {\n        var script, id, p;\n\n        if (isInit) {\n            return;\n        }\n\n        id = 'facebook-jssdk';\n\n        if (!$('#fb-root').length) {\n            $('body').append(t.root());\n        }\n\n        user = new UserModel();\n        session = new SessionModel();\n        login = new LoginModel();\n        permissions = new PermissionsModel();\n        if (_.has(options, 'permissions')){\n            permissions.set('requested', options.permissions);\n        }\n        login.set({user: user, session: session});\n\n        window.fbAsyncInit = function() {\n            FB.init({\n                appId: options.appId,\n                status: true, \n                cookie: true,\n                xfbml: true,\n                oauth: true,\n            });\n\n            isInit = true;\n\n            FB.Event.subscribe('auth.login', function(response){\n                updateUser();\n            });\n            FB.Event.subscribe('auth.statusChange', function(response){\n                updateSession(response);\n            });\n            FB.Event.subscribe('auth.authResponseChange', function(response){\n\n            });\n\n            // Force an status update upon initialzation, for cases where the \n            // user is not \"connected\", \"connected\" will fire an \"statusChange\" \n            // event, so no need to fire it twice\n            FB.getLoginStatus(function(response){\n                updateSession(response);\n                if (response.status === 'connected') {\n                    updateUser();\n                }\n            });\n\n            if (callback) {\n                callback();\n            }\n        }\n\n        if ($(id).length) { \n            return; \n        }\n        script = document.createElement('script'); \n        script.id = id; \n        script.async = true;\n        script.src = \"//connect.facebook.net/en_US/all.js\";\n        $('head').append(script);\n    };",
     "ctx": {
       "type": "function",
       "name": "init",
@@ -168,14 +178,11 @@
       {
         "type": "param",
         "types": [
-          "el"
+          "String",
+          "Array"
         ],
-        "name": "{DOMElement}",
-        "description": "The parent element for the view"
-      },
-      {
-        "type": "params",
-        "string": "permissions {String} Space separated facebook permissions"
+        "name": "permissions",
+        "description": "Space separated facebook permissions, or an <code>Array</code> of Facebook permissions."
       },
       {
         "type": "return",
@@ -186,9 +193,9 @@
       }
     ],
     "description": {
-      "full": "<p>Creates a login view and ties it with a user model. You need to <br />initialize the Facebook module in order to create a LoginView.</p>",
-      "summary": "<p>Creates a login view and ties it with a user model. You need to <br />initialize the Facebook module in order to create a LoginView.</p>",
-      "body": ""
+      "full": "<p><code>facebook.createLoginView()</code></p>\n\n<p>Creates a login view and ties it with a user model. You need to initialize the Facebook module in order to create a LoginView.</p>",
+      "summary": "<p><code>facebook.createLoginView()</code></p>",
+      "body": "<p>Creates a login view and ties it with a user model. You need to initialize the Facebook module in order to create a LoginView.</p>"
     },
     "isPrivate": false,
     "ignore": false,
@@ -202,9 +209,9 @@
   {
     "tags": [],
     "description": {
-      "full": "<p>Updates the user model for the module.</p>",
-      "summary": "<p>Updates the user model for the module.</p>",
-      "body": ""
+      "full": "<p><code>facebook.updateUser()</code></p>\n\n<p>Calls <code>FB.api('/me')</code> and updates the <code>UserModel</code> instance in the Facebook module.</p>",
+      "summary": "<p><code>facebook.updateUser()</code></p>",
+      "body": "<p>Calls <code>FB.api('/me')</code> and updates the <code>UserModel</code> instance in the Facebook module.</p>"
     },
     "ignore": false,
     "code": "function updateUser(){\n        FB.api('/me', function (response) {\n            user.clear({silent:true});\n            user.set(response);\n        });\n    }",
@@ -215,12 +222,21 @@
     }
   },
   {
-    "tags": [],
+    "tags": [
+      {
+        "type": "return",
+        "types": [
+          "UserModel"
+        ],
+        "description": ""
+      }
+    ],
     "description": {
-      "full": "<p>Returns the current UserModel instance</p>",
-      "summary": "<p>Returns the current UserModel instance</p>",
-      "body": ""
+      "full": "<p><code>facebook.getUser()</code> </p>\n\n<p>Returns the current <code>UserModel</code> instance.</p>",
+      "summary": "<p><code>facebook.getUser()</code> </p>",
+      "body": "<p>Returns the current <code>UserModel</code> instance.</p>"
     },
+    "isPrivate": false,
     "ignore": false,
     "code": "function getUser() {\n        return user;\n    }",
     "ctx": {
@@ -230,12 +246,21 @@
     }
   },
   {
-    "tags": [],
+    "tags": [
+      {
+        "type": "return",
+        "types": [
+          "SessionModel"
+        ],
+        "description": ""
+      }
+    ],
     "description": {
-      "full": "<p>Returns the current SessionModel instance</p>",
-      "summary": "<p>Returns the current SessionModel instance</p>",
-      "body": ""
+      "full": "<p><code>facebook.getSession()</code></p>\n\n<p>Returns the current <code>SessionModel</code> instance.</p>",
+      "summary": "<p><code>facebook.getSession()</code></p>",
+      "body": "<p>Returns the current <code>SessionModel</code> instance.</p>"
     },
+    "isPrivate": false,
     "ignore": false,
     "code": "function getSession() {\n        return session;\n    }",
     "ctx": {
@@ -245,12 +270,21 @@
     }
   },
   {
-    "tags": [],
+    "tags": [
+      {
+        "type": "return",
+        "types": [
+          "PermissionsModel"
+        ],
+        "description": ""
+      }
+    ],
     "description": {
-      "full": "<p>Returns the current PermissionsModel instance</p>",
-      "summary": "<p>Returns the current PermissionsModel instance</p>",
-      "body": ""
+      "full": "<p><code>facebook.getPermissions()</code></p>\n\n<p>Returns the current <code>PermissionsModel</code> instance.</p>",
+      "summary": "<p><code>facebook.getPermissions()</code></p>",
+      "body": "<p>Returns the current <code>PermissionsModel</code> instance.</p>"
     },
+    "isPrivate": false,
     "ignore": false,
     "code": "function getPermissions() {\n        return permissions;\n    }\n\n    //--------------------------------------------------------------------------\n    //\n    // Exports\n    //\n    //--------------------------------------------------------------------------",
     "ctx": {
@@ -262,11 +296,11 @@
   {
     "tags": [],
     "description": {
-      "full": "<h2>Listing of all module exports</h2>\n\n<ul>\n<li><code>createLoginView</code></li>\n<li><code>init</code></li>\n<li><code>getSession</code></li>\n<li><code>getUser</code></li>\n</ul>",
-      "summary": "<h2>Listing of all module exports</h2>",
-      "body": "<ul>\n<li><code>createLoginView</code></li>\n<li><code>init</code></li>\n<li><code>getSession</code></li>\n<li><code>getUser</code></li>\n</ul>"
+      "full": "<p>Module exports</p>\n\n<ul>\n<li><code>createLoginView</code></li>\n<li><code>getPermissions</code></li>\n<li><code>getSession</code></li>\n<li><code>getUser</code></li>\n<li><code>init</code></li>\n</ul>",
+      "summary": "<p>Module exports</p>",
+      "body": "<ul>\n<li><code>createLoginView</code></li>\n<li><code>getPermissions</code></li>\n<li><code>getSession</code></li>\n<li><code>getUser</code></li>\n<li><code>init</code></li>\n</ul>"
     },
     "ignore": false,
-    "code": "return {\n        'createLoginView': createLoginView,\n        'getSession': getSession,\n        'getUser': getUser,\n        'getPermissions': getPermissions,\n        'init': init\n    };\n})"
+    "code": "return {\n        'createLoginView': createLoginView,\n        'getPermissions': getPermissions,\n        'getSession': getSession,\n        'getUser': getUser,\n        'init': init\n    };\n})"
   }
 ]

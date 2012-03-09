@@ -1,21 +1,85 @@
 <html>
 <head>
     <title>RIA Training: Documentation</title>
+    <link href="{{ STATIC_URL }}css/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+    </style>
+    <link href="{{ STATIC_URL }}css/libs/bootstrap/bootstrap-responsive.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}css/facebook/facebook.css" rel="stylesheet">
+
 </head>
 <body>
-    <h1>RIA Training: Documentation</h1>
 
-    {% autoescape off %}
+  <div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <div id="fb-login"></div>
+        <a class="brand" href="#">RIA Training</a>
+
+        <div class="nav-collapse">
+          <ul class="nav">
+<!--             <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+ -->          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+  </div>
+
+  <div id="content" class="container docs">
+
+    {% comment %}
+        Menu
+    {% endcomment %}
+    <ul>
     {% for module in modules %}
         {% for section in module %}
-            {% if section.ignore%}
-            {% else %}
-            {{ section.description.summary }}
-            {{ section.description.full }}
-            <hr>
+            {% if not section.ignore %}
+            <li><a href="#{{ section.description.summary|removetags:"h2 h3 code"|slugify }}">{{ section.description.summary|safe }}</a></li>
+            {% endif %}
+        {% endfor %}
+        <hr>
+    {% endfor %}
+    </ul>
+    <hr>
+
+    {% comment %}
+        Documentation
+    {% endcomment %}
+    {% for module in modules %}
+        {% for section in module %}
+            {% if not section.ignore %}
+                <div id="{{ section.description.summary|removetags:"h2 h3 code"|slugify }}" >
+                {% autoescape off %}
+                    <h1>{{ section.description.summary }}</h1>
+                    {{ section.description.body }}
+                    <ul>
+                    {% for tag in section.tags %}
+                        <li>
+                        {% if tag.type == "return" %}
+                            Returns: <code>{{ tag.types|first }}</code>
+                        {% else %}
+                            <code>{{ tag.name }}:{{ tag.types|join:", " }}</code> {{ tag.description }}
+                        {% endif %}
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% endautoescape %}
+                <hr>
+                </div>
             {% endif %}
         {% endfor %}
     {% endfor %}
-    {% endautoescape %}
+  </div> <!-- /container -->
+
 </body>
 </html>
