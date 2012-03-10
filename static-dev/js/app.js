@@ -145,7 +145,7 @@ function($, _, Backbone, facebook, t_ageAware){
     /*! @ignore */
 
     function facebookInitHandler() {
-        var perms = 'user_birthday read_mailbox';
+        var perms = 'user_birthday read_mailbox'; // TODO: Change to managed perms
 
         user = facebook.getUser();
         session = facebook.getSession();
@@ -154,10 +154,6 @@ function($, _, Backbone, facebook, t_ageAware){
 
         mainView = new MainView();
         $('#content').append(mainView.render().el);
-    }
-
-    function facebookInitHandler2() {
-        console.log(facebook.getPermissions().toJSON());
     }
 
     //--------------------------------------------------------------------------
@@ -171,19 +167,10 @@ function($, _, Backbone, facebook, t_ageAware){
      */
     function initialize() {
         $(document).ready(function(){
-            var birthday = '1976/03/23';
-            // birthday = new Date(birthday);
-            console.log(birthday);
-            console.log(_.age(birthday));
-
-            // facebook.init({
-            //     appId: '216629731768132',
-            //     permissions: [
-            //         'user_birthday',
-            //         'read_mailbox',
-            //         'read_mailbox'
-            //    ], 
-            // }, facebookInitHandler2);
+            facebook.init({
+                appId: '216629731768132',
+                permissions: 'user_birthday read_mailbox read_mailbox'
+            }, facebookInitHandler);
         });
     }
 

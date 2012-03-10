@@ -2,8 +2,8 @@
   {
     "tags": [],
     "description": {
-      "full": "<p>Facebook module </p>\n\n<p>Provides basic initialization functionality and shortcuts for common tasks.</p>\n\n<h2>Dependencies</h2>\n\n<ul>\n<li>RequireJS</li>\n<li>RequireJS/text</li>\n<li>jQuery</li>\n<li>Underscore.js</li>\n<li>Backbone.js</li>\n<li>Underscore-ext.js</li>\n</ul>",
-      "summary": "<p>Facebook module </p>",
+      "full": "<p>Facebook module</p>\n\n<p>Provides basic initialization functionality and shortcuts for common tasks.</p>\n\n<h2>Dependencies</h2>\n\n<ul>\n<li>RequireJS</li>\n<li>RequireJS/text</li>\n<li>jQuery</li>\n<li>Underscore.js</li>\n<li>Backbone.js</li>\n<li>Underscore-ext.js</li>\n</ul>",
+      "summary": "<p>Facebook module</p>",
       "body": "<p>Provides basic initialization functionality and shortcuts for common tasks.</p>\n\n<h2>Dependencies</h2>\n\n<ul>\n<li>RequireJS</li>\n<li>RequireJS/text</li>\n<li>jQuery</li>\n<li>Underscore.js</li>\n<li>Backbone.js</li>\n<li>Underscore-ext.js</li>\n</ul>"
     },
     "ignore": false
@@ -286,12 +286,49 @@
     },
     "isPrivate": false,
     "ignore": false,
-    "code": "function getPermissions() {\n        return permissions;\n    }\n\n    //--------------------------------------------------------------------------\n    //\n    // Exports\n    //\n    //--------------------------------------------------------------------------",
+    "code": "function getPermissions() {\n        return permissions;\n    }",
     "ctx": {
       "type": "function",
       "name": "getPermissions",
       "string": "getPermissions()"
     }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "String",
+          "Array"
+        ],
+        "name": "permissions",
+        "description": "If a <code>String</code> is passed, this method will attempt to produce an <code>Array</code> of permissions performing a <code>split(\" \")</code> on the passed <code>String</code>. In an <code>Array</code> is passed, this method will assume each index in the <code>Array</code> contains a permission <code>String</code>."
+      },
+      {
+        "type": "return",
+        "types": [
+          "Boolean"
+        ],
+        "description": "<code>true</code> if any permission is added to the <code>requested</code> or <code>false</code> if no permission is added."
+      }
+    ],
+    "description": {
+      "full": "<p><code>facebook.addPermissions()</code></p>\n\n<p>Adds one or more permissions to the <code>requested</code> attribute in the <br /><code>PermissionsModel</code>. This method does not attempt to updtate any non-granted<br />permission, just ensures the same permition is not added more than one<br />time to the <code>requested</code> permissions <code>Array</code>.</p>\n\n<p>Complete list of <a href=\"http://developers.facebook.com/docs/reference/api/permissions/\" title=\"Valid Facebook permission strings\">valid Facebook permission strings</a>.</p>",
+      "summary": "<p><code>facebook.addPermissions()</code></p>",
+      "body": "<p>Adds one or more permissions to the <code>requested</code> attribute in the <br /><code>PermissionsModel</code>. This method does not attempt to updtate any non-granted<br />permission, just ensures the same permition is not added more than one<br />time to the <code>requested</code> permissions <code>Array</code>.</p>\n\n<p>Complete list of <a href=\"http://developers.facebook.com/docs/reference/api/permissions/\" title=\"Valid Facebook permission strings\">valid Facebook permission strings</a>.</p>"
+    },
+    "isPrivate": false,
+    "ignore": false
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p><code>facebook.updatePermissions()</code></p>\n\n<p>Requests all the non-granted permissions and updates the <br /><code>PermissionsModel</code><br />accordingly in the case the user grants additonal permissions.</p>",
+      "summary": "<p><code>facebook.updatePermissions()</code></p>",
+      "body": "<p>Requests all the non-granted permissions and updates the <br /><code>PermissionsModel</code><br />accordingly in the case the user grants additonal permissions.</p>"
+    },
+    "ignore": false,
+    "code": "//--------------------------------------------------------------------------\n    //\n    // Exports\n    //\n    //--------------------------------------------------------------------------"
   },
   {
     "tags": [],

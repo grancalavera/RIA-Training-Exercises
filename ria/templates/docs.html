@@ -61,7 +61,7 @@
                 <div id="{{ section.description.summary|removetags:"h2 h3 code"|slugify }}" >
                 {% autoescape off %}
                     <h1>{{ section.description.summary }}</h1>
-                    {{ section.description.body }}
+                    {{ section.description.body|removetags:'br' }}
                     <ul>
                     {% for tag in section.tags %}
                         <li>

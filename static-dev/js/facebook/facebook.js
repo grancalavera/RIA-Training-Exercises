@@ -1,5 +1,5 @@
 /**
- * Facebook module 
+ * Facebook module
  * 
  * Provides basic initialization functionality and shortcuts for common tasks.
  *
@@ -217,7 +217,7 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         login = new LoginModel();
         permissions = new PermissionsModel();
         if (_.has(options, 'permissions')){
-            permissions.set('requested', options.permissions);
+            addPermissions(options.permissions);
         }
         login.set({user: user, session: session});
 
@@ -328,6 +328,38 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         return permissions;
     }
 
+    /**
+     * `facebook.addPermissions()`
+     * 
+     * Adds one or more permissions to the <code>requested</code> attribute in the 
+     * <code>PermissionsModel</code>. This method does not attempt to updtate any non-granted
+     * permission, just ensures the same permition is not added more than one
+     * time to the <code>requested</code> permissions <code>Array</code>.
+     *
+     * Complete list of [valid Facebook permission strings](http://developers.facebook.com/docs/reference/api/permissions/ "Valid Facebook permission strings").
+     * 
+     * @param {String|Array} permissions If a <code>String</code> is passed, this method will attempt to produce an <code>Array</code> of permissions performing a <code>split(" ")</code> on the passed <code>String</code>. In an <code>Array</code> is passed, this method will assume each index in the <code>Array</code> contains a permission <code>String</code>.
+     * @return {Boolean} <code>true</code> if any permission is added to the <code>requested</code> or <code>false</code> if no permission is added.
+     */
+    function addPermissions(permissions) {
+        if (_.isString(permissions)) {
+            permissions = permissions.split(' ');
+        }
+        permissions = _.uniq(permissions);
+        console.log('will try to add: ' + permissions.toString());
+    }
+
+    /**
+     * `facebook.updatePermissions()`
+     * 
+     * Requests all the non-granted permissions and updates the 
+     * <code>PermissionsModel</code>
+     * accordingly in the case the user grants additonal permissions.
+     */
+    function updatePermissions() {
+
+    }
+
     //--------------------------------------------------------------------------
     //
     // Exports
@@ -337,17 +369,21 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     /**
      * Module exports
      * 
+     * - `addPermissions`
      * - `createLoginView`
      * - `getPermissions`
      * - `getSession`
      * - `getUser`
      * - `init`
+     * - `updatePermissions`
      */
     return {
+        'addPermissions': addPermissions,
         'createLoginView': createLoginView,
         'getPermissions': getPermissions,
         'getSession': getSession,
         'getUser': getUser,
-        'init': init
+        'init': init,
+        'updatePermissions': updatePermissions
     };
 })
