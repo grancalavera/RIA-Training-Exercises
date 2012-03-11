@@ -67,8 +67,8 @@ function($, _, Backbone, facebook, t_ageAware){
                 ageAwareView = new AgeAwareView({model:user});
                 this.$el.append(ageAwareView.render().el);
             } else if (ageAwareView) {
-                ageAware.remove();
-                ageAware = null;
+                ageAwareView.remove();
+                ageAwareView = null;
             }
         },
 
