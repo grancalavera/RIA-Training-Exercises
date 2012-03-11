@@ -37,14 +37,15 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     isInit, t,
 
     // Module internal state
-    user, session, login, permissions,
+    user, login, permissions, authResponse,
 
     // Models
-    UserModel, SessionModel, LoginModel, PermissionsModel,
+    UserModel, LoginModel, PermissionsModel, AuthResponseModel,
 
     // Views
     LoginView;
 
+    // Templates
     t = {
         root: _.template(t_fbRoot),
         login: _.template(t_login),
@@ -89,12 +90,17 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     UserModel = Backbone.Model.extend();
 
     /**
-     * `SessionModel`
+     * `AuthResponseModel`
      * 
-     * Models a Facebook session
+     * Models the authentication response returned by the following Facebook
+     * events:
+     *
+     * - `auth.login`
+     * - `auth.authResponseChange`
+     * - `auth.statusChange`
      *
      */
-    SessionModel = Backbone.Model.extend();
+    AuthResponseModel = Backbone.Model.extend();
 
     /**
      * `LoginModel`
@@ -129,7 +135,8 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
      * 
      * Defines a view that allows the user to log in and out of Facebook. 
      *
-     * @param {LoginModel} model Allows the view to track changes in both the current session and the current user.
+     * @param {LoginModel} model Allows the view to track changes in both the 
+     * current authResponse and the current user.
      */
     LoginView = Backbone.View.extend({
         tLogin: t.login,
@@ -142,7 +149,7 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             var p;
 
             this.model.get('user').bind('change', this.render, this);
-            this.model.get('session').bind('change', this.render, this);
+            this.model.get('authResponse').bind('change', this.render, this);
             
             p = this.model.get('permissions').get('requested');
             this.$el.html(this.tLogin({permissions: p}));
@@ -150,13 +157,13 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         },
 
         render: function(){
-            var user, session, status;
+            var user, authResponse, status;
 
             user = this.model.get('user');
-            session = this.model.get('session');
+            authResponse = this.model.get('authResponse');
 
-            if (session.has('status')){
-                status = session.get('status');
+            if (authResponse.has('status')){
+                status = authResponse.get('status');
                 if ((status === 'connected') && user.has('name')) {
                     this.$('.fb-login-button').hide();
                     this.$el.append(this.tLogout(user.toJSON()));
@@ -172,27 +179,31 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         },
 
         logout: function(){
-            var self = this;
-            FB.logout(function(response){
-                self.model.get('user').clear();
-                updateSession(response);
-            });
+            FB.logout();
         }
     });
-    
-    /*! @ignore */
+
     //--------------------------------------------------------------------------
     //
     // Module methods
     //
     //--------------------------------------------------------------------------
+    /*! @ignore */
 
-    function updateSession(response) {
-        _.extend(response, {
-            permissions: session.get('permissions')
+    function updatePermissions() {
+        FB.api('me/permissions', function (response){
+            permissions.set({
+                'granted': _.keys(response.data[0])
+            });
+            console.log(permissions.toJSON());
         });
-        session.clear({silent:true});
-        session.set(response);
+    }
+
+    function updateUser(){
+        FB.api('/me', function (response) {
+            user.clear({silent:true});
+            user.set(response);
+        });
     }
 
     //--------------------------------------------------------------------------
@@ -225,16 +236,23 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         }
 
         user = new UserModel();
-        session = new SessionModel();
+        authResponse = new AuthResponseModel();
         login = new LoginModel();
+
         permissions = new PermissionsModel();
         if (_.has(options, 'permissions')){
             addPermissions(options.permissions);
         }
         login.set({
             user: user, 
-            session: session, 
+            authResponse: authResponse,
             permissions:permissions
+        });
+
+        user.on('change', function(){
+            if(user.get('id')) {
+                updatePermissions();
+            }
         });
 
         window.fbAsyncInit = function() {
@@ -248,21 +266,54 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
 
             isInit = true;
 
+            //----------------------------------
+            //
+            // Facebook event handling
+            //
+            //----------------------------------
+
+            // landing logged out produces:
+            // 1. FB.getLoginStatus
+            // also:
+            // authResponse.status == 'unknown'
+
+            // landing logged in produces:
+            // 1. auth.statusChange
+            // 2. FB.getLoginStatus
+
+            // logging in produces (in order):
+            // 1. auth.logout
+            // 2. auth.login
+            // 3. auth.authResponseChange
+            // 4. auth.statusChange
+            
+            // logout produces (in order):
+            // 1. auth.logout
+            // 2. auth.authResponseChange
+            // 3. auth.statusChange
+
+            // other possible responses:
+            // authResponse.status = "not_authorized" (user is logged in but
+            // the application has not been authorized).
+            
             FB.Event.subscribe('auth.login', function(response){
                 updateUser();
             });
             FB.Event.subscribe('auth.statusChange', function(response){
-                updateSession(response);
+                authResponse.set(response);
             });
             FB.Event.subscribe('auth.authResponseChange', function(response){
-
+                authResponse.set(response);
+            });
+            FB.Event.subscribe('auth.logout', function(response){
+                user.clear();
             });
 
-            // Force an status update upon initialzation, for cases where the 
+            // Force an status update upon initialzation, for cases when the 
             // user is not "connected", "connected" will fire an "statusChange" 
-            // event, so no need to fire it twice
+            // event, so no need to fire it twice.
             FB.getLoginStatus(function(response){
-                updateSession(response);
+                authResponse.set(response);
                 if (response.status === 'connected') {
                     updateUser();
                 }
@@ -271,6 +322,8 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             if (callback) {
                 callback();
             }
+
+
         }
 
         if ($(id).length) { 
@@ -295,21 +348,12 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         if (!isInit) {
             throw new Error('You need to initialize the Facebook module in order to create a LoginView');
         }
-        addPermissions(perms);
+        if (perms) {
+            addPermissions(perms);
+        }
         return new LoginView({ model:login });
     }
 
-    /**
-     * `facebook.updateUser()`
-     *
-     * Calls `FB.api('/me')` and updates the `UserModel` instance in the Facebook module.
-     */
-    function updateUser(){
-        FB.api('/me', function (response) {
-            user.clear({silent:true});
-            user.set(response);
-        });
-    }
 
     /**
      * `facebook.getUser()` 
@@ -374,14 +418,30 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     }
 
     /**
-     * `facebook.updatePermissions()`
+     * `facebook.hasPermissionsTo()`
      * 
-     * Requests all the non-granted permissions and updates the 
-     * <code>PermissionsModel</code>
-     * accordingly in the case the user grants additonal permissions.
+     * Given an <code>Array</code> of permissions, checks if all of them have been granted by the user.
+     *
+     * @param {String|Array} perms If a <code>String</code> is passed, this method  will attempt to produce an <code>Array</code> of permissions performing a <code>split(" ")</code> on the passed <code>String</code>. In an <code>Array</code> is passed, this method will assume each index in the <code>Array</code> contains a permission <code>String</code>.
+     * 
+     * @return {Boolean} <code>true</code> if all the permissions have been granted, of <code>false</code> if any permission has not been granted.
      */
-    function updatePermissions() {
+    function hasPermissionsTo(perms) {
+        _.all(perms, hasPermissionTo);
+    }
 
+    /**
+     * `facebook.hasPermissionsTo()`
+     * 
+     * Given single permission <code>String</code> checks that such permission has
+     * been granted by the user.
+     *
+     * @param {String} perm A single Facebook permission string.
+     * 
+     * @return {Boolean} <code>true</code> if the permission has been granted, of <code>false</code> if it hasn't.
+     */
+    function hasPermissionTo(perm) {
+        return _.include(permissions.get('granted'), perm);
     }
 
     //--------------------------------------------------------------------------
@@ -399,7 +459,6 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
      * - `getSession`
      * - `getUser`
      * - `init`
-     * - `updatePermissions`
      */
     return {
         'addPermissions': addPermissions,
@@ -407,7 +466,8 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         'getPermissions': getPermissions,
         'getSession': getSession,
         'getUser': getUser,
-        'init': init,
-        'updatePermissions': updatePermissions
+        'hasPermissionTo': hasPermissionTo,
+        'hasPermissionsTo': hasPermissionsTo,
+        'init': init
     };
 })

@@ -72,6 +72,16 @@ function($, _, Backbone, facebook, t_ageAware){
             }
         },
 
+        send: function (event){
+            event.preventDefault();
+            this.dialog('send', event);
+        },
+
+        feed: function (event) {
+            event.preventDefault();
+            this.dialog('feed', event);
+        },
+
         dialog: function(method, event) {
             var link, name;
 
@@ -88,17 +98,8 @@ function($, _, Backbone, facebook, t_ageAware){
                     alert('Something went wrong. Why not try again?');
                 }
             });
-        },
-
-        send: function (event){
-            event.preventDefault();
-            this.dialog('send', event);
-        },
-
-        feed: function (event) {
-            event.preventDefault();
-            this.dialog('feed', event);
         }
+
     });
 
     /**
@@ -149,13 +150,9 @@ function($, _, Backbone, facebook, t_ageAware){
     /*! @ignore */
 
     function facebookInitHandler() {
-        var perms = 'user_birthday read_mailbox'; // TODO: Change to managed perms
-
         user = facebook.getUser();
         session = facebook.getSession();
-
-        $('#fb-login').html(facebook.createLoginView(perms).render().el);
-
+        $('#fb-login').html(facebook.createLoginView().render().el);
         mainView = new MainView();
         $('#content').append(mainView.render().el);
     }
@@ -173,7 +170,7 @@ function($, _, Backbone, facebook, t_ageAware){
         $(document).ready(function(){
             facebook.init({
                 appId: '216629731768132',
-                permissions: 'user_birthday read_mailbox read_mailbox user_about_me'
+                permissions: 'user_birthday'
             }, facebookInitHandler);
         });
     }
