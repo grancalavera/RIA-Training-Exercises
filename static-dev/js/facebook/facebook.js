@@ -68,10 +68,17 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
      *      var permissions = new PermissionsModel();
      *      permissions.set({'requested': ['user_birthday', 'read_mailbox']});
      *
-     * @param {Array} requested Model attribute: The liste of permissions requested by the application.
+     * @param {Array} requested Model attribute: The list of permissions requested by the application.
      * @param {Array} granted Model attribute: The list of permissions granted by the user.
      */
-    PermissionsModel = Backbone.Model.extend();
+    PermissionsModel = Backbone.Model.extend({
+        defaults: function(){
+            return {
+                requested: [],
+                granted: []
+            }
+        }
+    });
 
     /**
      * `UserModel`
@@ -92,7 +99,7 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     /**
      * `LoginModel`
      *
-     * Models the relationship between a session and an user.
+     * Models the relationship between a session, a set of permissions and an user.
      * 
      * Usage:
      *
@@ -102,7 +109,8 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
      *      login = new LoginModel;
      *      login.set ({
      *          user: user,
-     *          session: session
+     *          session: session,
+     *          permissions: permissions
      *      });
      *
      * @param {UserModel} user
@@ -131,9 +139,13 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         },
 
         initialize: function(){
+            var p;
+
             this.model.get('user').bind('change', this.render, this);
             this.model.get('session').bind('change', this.render, this);
-            this.$el.html(this.tLogin(this.model.get('session').toJSON()));
+            
+            p = this.model.get('permissions').get('requested');
+            this.$el.html(this.tLogin({permissions: p}));
             this.$('.fb-login-button').hide();
         },
 
@@ -216,15 +228,14 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         session = new SessionModel();
         login = new LoginModel();
         permissions = new PermissionsModel();
-        permissions.set({
-            'requested': ['user_about_me'],
-            'granted': []
-        });
-
         if (_.has(options, 'permissions')){
-            var didAdd = addPermissions(options.permissions);
+            addPermissions(options.permissions);
         }
-        login.set({user: user, session: session});
+        login.set({
+            user: user, 
+            session: session, 
+            permissions:permissions
+        });
 
         window.fbAsyncInit = function() {
             FB.init({
@@ -277,14 +288,14 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
      *
      * Creates a login view and ties it with a user model. You need to initialize the Facebook module in order to create a LoginView.
      * 
-     * @param {String|Array} permissions  Space separated facebook permissions, or an <code>Array</code> of Facebook permissions.
+     * @param {String|Array} perms  Space separated facebook permissions, or an <code>Array</code> of Facebook permissions.
      * @return {LoginView}
      */
-    function createLoginView (permissions) {
+    function createLoginView (perms) {
         if (!isInit) {
             throw new Error('You need to initialize the Facebook module in order to create a LoginView');
         }
-        session.set('permissions', permissions || '' );
+        addPermissions(perms);
         return new LoginView({ model:login });
     }
 
@@ -337,8 +348,8 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
      * `facebook.addPermissions()`
      * 
      * Adds one or more permissions to the <code>requested</code> attribute in the 
-     * <code>PermissionsModel</code>. This method does not attempt to updtate any non-granted
-     * permission, just ensures the same permition is not added more than one
+     * <code>PermissionsModel</code>. This method will not attempt to updtate any non-granted 
+     * permission, just ensures the same permission is not added more than one 
      * time to the <code>requested</code> permissions <code>Array</code>.
      *
      * Complete list of [valid Facebook permission strings](http://developers.facebook.com/docs/reference/api/permissions/ "Valid Facebook permission strings").
@@ -356,13 +367,10 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         perms = _.difference(perms, requested);
         if (perms.length) {
             permissions.set({'requested': requested.concat(perms)});
-            console.log('will try to add: ' + perms.toString());
-            console.log('new requested: ' + permissions.get('requested'));
             return true;
         } else {
             return false;
         }
-
     }
 
     /**

@@ -19,7 +19,7 @@ require.config({
         Underscore: 'libs/underscore/underscore',
         Backbone: 'libs/backbone/backbone'
     },
-    urlArgs: "bust=v2"
+    urlArgs: "bust=v3"
 });
 
 require(

@@ -131,7 +131,11 @@ function($, _, Backbone, facebook, t_ageAware){
                 label = 'label-warning';
             }
 
-            this.$el.html(this.template({message:message, label:label, access:access}));
+            this.$el.html(this.template({
+                message:message, 
+                label:label, 
+                access:access
+            }));
             return this;
         },
 
