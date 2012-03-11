@@ -166,7 +166,7 @@
     },
     "isPrivate": false,
     "ignore": false,
-    "code": "function init(options, callback) {\n        var script, id, p;\n\n        if (isInit) {\n            return;\n        }\n\n        id = 'facebook-jssdk';\n\n        if (!$('#fb-root').length) {\n            $('body').append(t.root());\n        }\n\n        user = new UserModel();\n        session = new SessionModel();\n        login = new LoginModel();\n        permissions = new PermissionsModel();\n        if (_.has(options, 'permissions')){\n            permissions.set('requested', options.permissions);\n        }\n        login.set({user: user, session: session});\n\n        window.fbAsyncInit = function() {\n            FB.init({\n                appId: options.appId,\n                status: true, \n                cookie: true,\n                xfbml: true,\n                oauth: true,\n            });\n\n            isInit = true;\n\n            FB.Event.subscribe('auth.login', function(response){\n                updateUser();\n            });\n            FB.Event.subscribe('auth.statusChange', function(response){\n                updateSession(response);\n            });\n            FB.Event.subscribe('auth.authResponseChange', function(response){\n\n            });\n\n            // Force an status update upon initialzation, for cases where the \n            // user is not \"connected\", \"connected\" will fire an \"statusChange\" \n            // event, so no need to fire it twice\n            FB.getLoginStatus(function(response){\n                updateSession(response);\n                if (response.status === 'connected') {\n                    updateUser();\n                }\n            });\n\n            if (callback) {\n                callback();\n            }\n        }\n\n        if ($(id).length) { \n            return; \n        }\n        script = document.createElement('script'); \n        script.id = id; \n        script.async = true;\n        script.src = \"//connect.facebook.net/en_US/all.js\";\n        $('head').append(script);\n    };",
+    "code": "function init(options, callback) {\n        var script, id, p;\n\n        if (isInit) {\n            return;\n        }\n\n        id = 'facebook-jssdk';\n\n        if (!$('#fb-root').length) {\n            $('body').append(t.root());\n        }\n\n        user = new UserModel();\n        session = new SessionModel();\n        login = new LoginModel();\n        permissions = new PermissionsModel();\n        if (_.has(options, 'permissions')){\n            addPermissions(options.permissions);\n        }\n        login.set({user: user, session: session});\n\n        window.fbAsyncInit = function() {\n            FB.init({\n                appId: options.appId,\n                status: true, \n                cookie: true,\n                xfbml: true,\n                oauth: true,\n            });\n\n            isInit = true;\n\n            FB.Event.subscribe('auth.login', function(response){\n                updateUser();\n            });\n            FB.Event.subscribe('auth.statusChange', function(response){\n                updateSession(response);\n            });\n            FB.Event.subscribe('auth.authResponseChange', function(response){\n\n            });\n\n            // Force an status update upon initialzation, for cases where the \n            // user is not \"connected\", \"connected\" will fire an \"statusChange\" \n            // event, so no need to fire it twice\n            FB.getLoginStatus(function(response){\n                updateSession(response);\n                if (response.status === 'connected') {\n                    updateUser();\n                }\n            });\n\n            if (callback) {\n                callback();\n            }\n        }\n\n        if ($(id).length) { \n            return; \n        }\n        script = document.createElement('script'); \n        script.id = id; \n        script.async = true;\n        script.src = \"//connect.facebook.net/en_US/all.js\";\n        $('head').append(script);\n    };",
     "ctx": {
       "type": "function",
       "name": "init",
@@ -318,7 +318,13 @@
       "body": "<p>Adds one or more permissions to the <code>requested</code> attribute in the <br /><code>PermissionsModel</code>. This method does not attempt to updtate any non-granted<br />permission, just ensures the same permition is not added more than one<br />time to the <code>requested</code> permissions <code>Array</code>.</p>\n\n<p>Complete list of <a href=\"http://developers.facebook.com/docs/reference/api/permissions/\" title=\"Valid Facebook permission strings\">valid Facebook permission strings</a>.</p>"
     },
     "isPrivate": false,
-    "ignore": false
+    "ignore": false,
+    "code": "function addPermissions(permissions) {\n        if (_.isString(permissions)) {\n            permissions = permissions.split(' ');\n        }\n        permissions = _.uniq(permissions);\n        console.log('will try to add: ' + permissions.toString());\n    }",
+    "ctx": {
+      "type": "function",
+      "name": "addPermissions",
+      "string": "addPermissions()"
+    }
   },
   {
     "tags": [],
@@ -328,16 +334,21 @@
       "body": "<p>Requests all the non-granted permissions and updates the <br /><code>PermissionsModel</code><br />accordingly in the case the user grants additonal permissions.</p>"
     },
     "ignore": false,
-    "code": "//--------------------------------------------------------------------------\n    //\n    // Exports\n    //\n    //--------------------------------------------------------------------------"
+    "code": "function updatePermissions() {\n\n    }\n\n    //--------------------------------------------------------------------------\n    //\n    // Exports\n    //\n    //--------------------------------------------------------------------------",
+    "ctx": {
+      "type": "function",
+      "name": "updatePermissions",
+      "string": "updatePermissions()"
+    }
   },
   {
     "tags": [],
     "description": {
-      "full": "<p>Module exports</p>\n\n<ul>\n<li><code>createLoginView</code></li>\n<li><code>getPermissions</code></li>\n<li><code>getSession</code></li>\n<li><code>getUser</code></li>\n<li><code>init</code></li>\n</ul>",
+      "full": "<p>Module exports</p>\n\n<ul>\n<li><code>addPermissions</code></li>\n<li><code>createLoginView</code></li>\n<li><code>getPermissions</code></li>\n<li><code>getSession</code></li>\n<li><code>getUser</code></li>\n<li><code>init</code></li>\n<li><code>updatePermissions</code></li>\n</ul>",
       "summary": "<p>Module exports</p>",
-      "body": "<ul>\n<li><code>createLoginView</code></li>\n<li><code>getPermissions</code></li>\n<li><code>getSession</code></li>\n<li><code>getUser</code></li>\n<li><code>init</code></li>\n</ul>"
+      "body": "<ul>\n<li><code>addPermissions</code></li>\n<li><code>createLoginView</code></li>\n<li><code>getPermissions</code></li>\n<li><code>getSession</code></li>\n<li><code>getUser</code></li>\n<li><code>init</code></li>\n<li><code>updatePermissions</code></li>\n</ul>"
     },
     "ignore": false,
-    "code": "return {\n        'createLoginView': createLoginView,\n        'getPermissions': getPermissions,\n        'getSession': getSession,\n        'getUser': getUser,\n        'init': init\n    };\n})"
+    "code": "return {\n        'addPermissions': addPermissions,\n        'createLoginView': createLoginView,\n        'getPermissions': getPermissions,\n        'getSession': getSession,\n        'getUser': getUser,\n        'init': init,\n        'updatePermissions': updatePermissions\n    };\n})"
   }
 ]

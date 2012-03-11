@@ -216,8 +216,13 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         session = new SessionModel();
         login = new LoginModel();
         permissions = new PermissionsModel();
+        permissions.set({
+            'requested': ['user_about_me'],
+            'granted': []
+        });
+
         if (_.has(options, 'permissions')){
-            addPermissions(options.permissions);
+            var didAdd = addPermissions(options.permissions);
         }
         login.set({user: user, session: session});
 
@@ -338,15 +343,26 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
      *
      * Complete list of [valid Facebook permission strings](http://developers.facebook.com/docs/reference/api/permissions/ "Valid Facebook permission strings").
      * 
-     * @param {String|Array} permissions If a <code>String</code> is passed, this method will attempt to produce an <code>Array</code> of permissions performing a <code>split(" ")</code> on the passed <code>String</code>. In an <code>Array</code> is passed, this method will assume each index in the <code>Array</code> contains a permission <code>String</code>.
+     * @param {String|Array} perms If a <code>String</code> is passed, this method will attempt to produce an <code>Array</code> of permissions performing a <code>split(" ")</code> on the passed <code>String</code>. In an <code>Array</code> is passed, this method will assume each index in the <code>Array</code> contains a permission <code>String</code>.
      * @return {Boolean} <code>true</code> if any permission is added to the <code>requested</code> or <code>false</code> if no permission is added.
      */
-    function addPermissions(permissions) {
-        if (_.isString(permissions)) {
-            permissions = permissions.split(' ');
+    function addPermissions(perms) {
+        var requested;
+        if (_.isString(perms)) {
+            perms = perms.split(' ');
         }
-        permissions = _.uniq(permissions);
-        console.log('will try to add: ' + permissions.toString());
+        requested = permissions.get('requested');
+        perms = _.uniq(perms);
+        perms = _.difference(perms, requested);
+        if (perms.length) {
+            permissions.set({'requested': requested.concat(perms)});
+            console.log('will try to add: ' + perms.toString());
+            console.log('new requested: ' + permissions.get('requested'));
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     /**

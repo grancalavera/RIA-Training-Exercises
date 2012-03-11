@@ -169,7 +169,7 @@ function($, _, Backbone, facebook, t_ageAware){
         $(document).ready(function(){
             facebook.init({
                 appId: '216629731768132',
-                permissions: 'user_birthday read_mailbox read_mailbox'
+                permissions: 'user_birthday read_mailbox read_mailbox user_about_me'
             }, facebookInitHandler);
         });
     }
