@@ -195,7 +195,6 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             permissions.set({
                 'granted': _.keys(response.data[0])
             });
-            console.log(permissions.toJSON());
         });
     }
 
