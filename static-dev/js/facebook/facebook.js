@@ -87,7 +87,14 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
      * Models a Facebook user
      * 
      */
-    UserModel = Backbone.Model.extend();
+    UserModel = Backbone.Model.extend({
+        defaults: function(){
+            return {
+                id: null,
+                name: null
+            }
+        }
+    });
 
     /**
      * `AuthResponseModel`
@@ -306,6 +313,7 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
             });
             FB.Event.subscribe('auth.logout', function(response){
                 user.clear();
+                permissions.set('granted', []);
             });
 
             // Force an status update upon initialzation, for cases when the 
@@ -366,14 +374,14 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
     }
 
     /**
-     * `facebook.getSession()`
+     * `facebook.getAuthResponse()`
      * 
-     * Returns the current `SessionModel` instance.
+     * Returns the current `AuthResponseModel` instance.
      *
-     * @return {SessionModel}
+     * @return {AuthResponseModel}
      */
-    function getSession() {
-        return session;
+    function getAuthResponse() {
+        return authResponse;
     }
 
     /**
@@ -426,7 +434,7 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
      * @return {Boolean} <code>true</code> if all the permissions have been granted, of <code>false</code> if any permission has not been granted.
      */
     function hasPermissionsTo(perms) {
-        _.all(perms, hasPermissionTo);
+        return _.all(perms, hasPermissionTo);
     }
 
     /**
@@ -443,6 +451,17 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
         return _.include(permissions.get('granted'), perm);
     }
 
+    /**
+     * `facebook.hasAllPermissions`
+     * 
+     * Checks whether all the requested permissions have been granted
+     *
+     * @return {Boolean} <code>true</code> if all the requested permissions have been granted, of <code>false</code> if not.
+     */
+    function hasAllPermissions(){
+        return hasPermissionsTo(permissions.get('requested'));
+    }
+
     //--------------------------------------------------------------------------
     //
     // Exports
@@ -454,19 +473,23 @@ function($, Backbone, _, t_fbRoot, t_login, t_logout){
      * 
      * - `addPermissions`
      * - `createLoginView`
+     * - `getAuthResponse`
      * - `getPermissions`
-     * - `getSession`
      * - `getUser`
+     * - `hasAllPermissions`
+     * - `hasPermissionsTo`
+     * - `hasPermissionTo`
      * - `init`
      */
     return {
         'addPermissions': addPermissions,
         'createLoginView': createLoginView,
+        'getAuthResponse': getAuthResponse,
         'getPermissions': getPermissions,
-        'getSession': getSession,
         'getUser': getUser,
-        'hasPermissionTo': hasPermissionTo,
+        'hasAllPermissions': hasAllPermissions,
         'hasPermissionsTo': hasPermissionsTo,
+        'hasPermissionTo': hasPermissionTo,
         'init': init
     };
 })

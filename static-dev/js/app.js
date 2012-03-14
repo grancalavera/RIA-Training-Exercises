@@ -12,11 +12,9 @@
 define(
 [
     'jQuery', 'Underscore', 'Backbone',
-    'facebook/facebook',
-
-    'text!/static/templates/training/age-aware.html'
+    'facebook/facebook'
 ], 
-function($, _, Backbone, facebook, t_ageAware){
+function($, _, Backbone, facebook){
 
     //--------------------------------------------------------------------------
     //
@@ -28,15 +26,48 @@ function($, _, Backbone, facebook, t_ageAware){
     t,
 
     // Module internal state
-    user, session, mainView, ageAwareView,
+    user, authResponse, permissions, mainView, ageAwareView, sharingLinksView, mainModel,
+
+    // Models
+    MainModel,
 
     // Views
-    Main, AgeAwareView;
+    Main, AgeAwareView, SharingLinksView;
 
-    t = {
-        ageAware: _.template(t_ageAware)
-    };
-    user, session, ageAwareView = null;
+    // var init
+    mainModel, user, authResponse, ageAwareView, sharingLinksView, permissions = null;
+
+    //--------------------------------------------------------------------------
+    //
+    // Utils
+    //
+    //--------------------------------------------------------------------------
+
+    /*! @ignore */
+    function t(id){
+        return _.template($(id).html());
+    }
+
+    //--------------------------------------------------------------------------
+    //
+    // Models
+    //
+    //--------------------------------------------------------------------------
+
+    /**
+     * MainModel
+     * 
+     * Describes the state of the application
+     */
+    MainModel = Backbone.Model.extend({
+        defaults: function(){
+            return {
+                hasAllPermissions: false,
+                hasUser: false,
+                isConnected: false
+            }
+        }
+    });
 
     //--------------------------------------------------------------------------
     //
@@ -51,24 +82,51 @@ function($, _, Backbone, facebook, t_ageAware){
      * different models and views.
      */
     MainView = Backbone.View.extend({
-        initialize: function() {
-            user.bind('change', this.user_changeHandler, this);
-        },
+
+        el: '#content',
+
+        hasAllPermissions: false,
+        hasUser: false,
+        isConnected: false,
 
         events: {
-            'click .fb-send-dialog': 'send',
-            'click .fb-feed-dialog': 'feed'
+            'click .fb-dialog .fb-send': 'send',
+            'click .fb-dialog .fb-feed': 'feed'
         },
         
-        // todo: need to check the permissions, bc if the user is authenticated
-        // from somewhere else the app breaks
-        user_changeHandler: function(){
-            if (user.has('birthday')) {
+        initialize: function() {
+            this.model.bind('change', this.render, this);
+        },
+
+        render: function() {
+
+            this.hasAllPermissions = this.model.get('hasAllPermissions');
+            this.hasUser = this.model.get('hasUser');
+            this.isConnected = this.model.get('isConnected');
+
+            this.toggleAgeAwareContent();
+            this.toggleSharingLinks();
+            
+            return this;
+        },
+
+        toggleAgeAwareContent: function() {
+            if (!ageAwareView && this.isConnected && this.hasUser && this.hasAllPermissions){
                 ageAwareView = new AgeAwareView({model:user});
-                this.$el.append(ageAwareView.render().el);
+                this.$('#suggested-content').append(ageAwareView.render().el);
             } else if (ageAwareView) {
                 ageAwareView.remove();
                 ageAwareView = null;
+            }
+        },
+
+        toggleSharingLinks: function() {
+            if (!sharingLinksView && this.isConnected) {
+                sharingLinksView = new SharingLinksView();
+                this.$('#sharing-links').append(sharingLinksView.render().el);
+            } else if (sharingLinksView && !this.isConnected) {
+                sharingLinksView.remove();
+                sharingLinksView = null;
             }
         },
 
@@ -87,6 +145,7 @@ function($, _, Backbone, facebook, t_ageAware){
 
             link = $(event.currentTarget).attr('href');
             name = $(event.currentTarget).attr('title');
+
             FB.ui({
                 method: method,
                 name: name,
@@ -109,9 +168,8 @@ function($, _, Backbone, facebook, t_ageAware){
      */
     AgeAwareView = Backbone.View.extend({
 
-        template: t.ageAware,
+        template: t('#t-suggestions'),
         ageLimit: 18,
-
 
         initialize: function(){
             this.model.bind('change', this.render, this);
@@ -142,26 +200,102 @@ function($, _, Backbone, facebook, t_ageAware){
 
     });
 
-    //--------------------------------------------------------------------------
+    /**
+     * SharingLinksView
+     * 
+     * Renders links to share this page in Facebook, using different sharing methods
+     */
+    SharingLinksView = Backbone.View.extend({
+        render: function(){
+            this.$el.append(t('#t-fb-dialog')({
+                cta: 'Update your timeline with Backbone.js!',
+                title: 'Backbone.js',
+                type: 'fb-feed',
+                url: 'http://documentcloud.github.com/backbone'
+            }));
+
+            this.$el.append(t('#t-fb-dialog')({
+                cta: 'Send a message about Backbone.js!',
+                title: 'Backbone.js',
+                type: 'fb-send',
+                url: 'http://documentcloud.github.com/backbone'
+            }));
+            return this;
+        }
+    });
+
+    //---------------------------------------------------------------------------
     //
     // Module methods
     //
-    //--------------------------------------------------------------------------
+    //---------------------------------------------------------------------------
     /*! @ignore */
 
     function facebookInitHandler() {
+        mainModel = new MainModel();
+
         user = facebook.getUser();
-        session = facebook.getSession();
+        authResponse = facebook.getAuthResponse();
+        permissions = facebook.getPermissions();
+
+        user.on('change', activityHandler);
+        authResponse.on('change', activityHandler);
+        permissions.on('change', activityHandler);
+
         $('#fb-login').html(facebook.createLoginView().render().el);
-        mainView = new MainView();
-        $('#content').append(mainView.render().el);
+        mainView = new MainView({model:mainModel});
+        mainView.render();
     }
 
-    //--------------------------------------------------------------------------
+    function activityHandler(event) {
+        var origin;
+
+        switch (event) {
+            case authResponse:
+                origin = 'authResponse';
+                break;
+            case user:
+                origin = 'user';
+                break;
+            case permissions:
+                origin = 'permissions';
+                break;
+            default:
+                origin = 'unknown';
+        }
+
+        mainModel.set({
+            hasAllPermissions: facebook.hasAllPermissions(),
+            hasUser: !_.isNull(user.get('id')) && !_.isUndefined(user.get('id')),
+            isConnected: authResponse.get('status') === 'connected'
+        });
+
+        // logActivity(origin);
+    }
+
+    function logActivity(origin) {
+        console.log('-----------------------------------------------------');
+        console.log('Activity origin:       ' + origin);
+        console.log('-----------------------------------------------------');
+        console.log('Timestamp:             ' + new Date().getTime());
+        console.log('Status:                ' + authResponse.get('status'));
+        console.log('Requested permissions: ' + permissions.get('requested'));
+        console.log('Granted permissions:   ' + permissions.get('granted'));
+        console.log('User id:               ' + user.get('id'));
+        console.log('User name:             ' + user.get('name'));
+        console.log('Is connected:          ' + this.isConnected);
+        console.log('Has user:              ' + this.hasUser);
+        console.log('Has all permissions:   ' + this.hasAllPermissions);
+        console.log('-----------------------------------------------------');
+        console.log(' ');
+        console.log(' ');
+    }    
+
+    //---------------------------------------------------------------------------
     //
     // API
     //
-    //--------------------------------------------------------------------------
+    //---------------------------------------------------------------------------
 
     /**
      * Initializes the main application
@@ -175,11 +309,11 @@ function($, _, Backbone, facebook, t_ageAware){
         });
     }
 
-    //--------------------------------------------------------------------------
+    //---------------------------------------------------------------------------
     //
     // Exports
     //
-    //--------------------------------------------------------------------------
+    //---------------------------------------------------------------------------
 
     /**
      * Exported APIs

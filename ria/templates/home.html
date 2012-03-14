@@ -44,10 +44,31 @@
   </div>
 
   <div id="content" class="container">
-    <h1><div class="fb-send" data-href="http://example.com"></div>Age aware content </h1>
+    <h1><div class="fb-send right" data-href="http://example.com"></div>Age aware content </h1>
+    <div id="suggested-content"></div>
+    <div id="sharing-links"></div>
   </div> <!-- /container -->
   
+  <!-- Templates -->
+
+  <script type="text/template" id="t-suggestions">
+    <div class="container ageAware">
+        <p><span class="label <%= label %>"><%= access %></span><%= message %></p>
+    </div>
+  </script>
+
+  <script type="text/template" id="t-fb-dialog">
+    <%
+      var type = type || 'fb-feed';
+      var cta = cta || 'Share this in your timeline!';
+      var url = url || 'http://facebook.com';
+      var title = title || 'Facebook.com';
+    %>
+    <div class="container fb-dialog">
+      <a class="<%= type %>" href="<%= url %>" title="<%= title %>"><%= cta %></a>        
+    </div>
+  </script>
+
 </body>
 </html>
 
-<!-- vebzlsz_fallersky_1330276902@tfbnw.net -->
