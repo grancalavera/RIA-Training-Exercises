@@ -270,7 +270,7 @@ function($, _, Backbone, facebook){
             isConnected: authResponse.get('status') === 'connected'
         });
 
-        logActivity(origin);
+        // logActivity(origin);
 
     }
 
@@ -284,9 +284,9 @@ function($, _, Backbone, facebook){
         console.log('Granted permissions:   ' + permissions.get('granted'));
         console.log('User id:               ' + user.get('id'));
         console.log('User name:             ' + user.get('name'));
-        console.log('Is connected:          ' + this.isConnected);
-        console.log('Has user:              ' + this.hasUser);
-        console.log('Has all permissions:   ' + this.hasAllPermissions);
+        console.log('Is connected:          ' + mainModel.get('isConnected'));
+        console.log('Has user:              ' + mainModel.get('hasUser'));
+        console.log('Has all permissions:   ' + mainModel.get('hasAllPermissions'));
         console.log('-----------------------------------------------------');
         console.log(' ');
         console.log(' ');
