@@ -113,97 +113,16 @@
 
             <div class="well">
 
-              <div class="modal" style="position: relative; top: auto; left: auto; margin: 0 auto; z-index: 1; width:100%">
+              <div id="activity-log" class="modal" style="position: relative; top: auto; left: auto; margin: 0 auto; z-index: 1; width:100%">
                 <div class="modal-header">
                   <h3>Activity log</h3>
                 </div>
-                <div class="modal-body" style="height:360px;overflow:auto">
-<!--
--->
-<pre>
------------------------------------------------------
-Activity origin:       authResponse
------------------------------------------------------
-Timestamp:             1331826777698
-Status:                unknown
-Requested permissions: user_birthday
-Granted permissions:   
-User id:               null
-User name:             null
-Is connected:          false
-Has user:              false
-Has all permissions:   false
------------------------------------------------------
-</pre>
- 
-<pre>
------------------------------------------------------
-Activity origin:       user
------------------------------------------------------
-Timestamp:             1331826798299
-Status:                unknown
-Requested permissions: user_birthday
-Granted permissions:   
-User id:               undefined
-User name:             undefined
-Is connected:          false
-Has user:              false
-Has all permissions:   false
------------------------------------------------------
-</pre> 
- 
-<pre>
------------------------------------------------------
-Activity origin:       authResponse
------------------------------------------------------
-Timestamp:             1331826798309
-Status:                connected
-Requested permissions: user_birthday
-Granted permissions:   
-User id:               undefined
-User name:             undefined
-Is connected:          true
-Has user:              false
-Has all permissions:   false
------------------------------------------------------
-</pre> 
- 
-<pre>
------------------------------------------------------
-Activity origin:       user
------------------------------------------------------
-Timestamp:             1331826798943
-Status:                connected
-Requested permissions: user_birthday
-Granted permissions:   
-User id:               100002119090959
-User name:             Arturo Pex
-Is connected:          true
-Has user:              true
-Has all permissions:   false
------------------------------------------------------
-</pre> 
- 
-<pre>
------------------------------------------------------
-Activity origin:       permissions
------------------------------------------------------
-Timestamp:             1331826799118
-Status:                connected
-Requested permissions: user_birthday
-Granted permissions:   installed,user_birthday
-User id:               100002119090959
-User name:             Arturo Pex
-Is connected:          true
-Has user:              true
-Has all permissions:   true
------------------------------------------------------
-</pre> 
+                <div class="modal-body log" style="height:360px;overflow:auto">
 
                 </div>
                 <div class="modal-footer">
-                  <button href="#" class="btn btn-primary" data-toggle="button">Start</button>
-                  <button href="#" class="btn" >Clear</button>
+                  <button href="#" class="btn btn-primary toggle" data-toggle="button">Start</button>
+                  <button href="#" class="btn clear" >Clear</button>
                 </div>
               </div>
 
@@ -314,7 +233,8 @@ Has all permissions:   true
 
 <!-- -----------------------------------
 
-  All-purpose Facebook dialog link (defaults to feed dialog)
+  Generic Facebook dialog link 
+  - defaults to feed dialog
 
 ------------------------------------ -->
   <script type="text/template" id="t-fb-dialog">
@@ -328,6 +248,18 @@ Has all permissions:   true
       <a class="<%= type %>" href="<%= url %>" title="<%= title %>"><%= cta %></a>        
     </div>
   </script>
+
+<!-- -----------------------------------
+  
+    Activity log
+  
+  ------------------------------------ -->
+  <script type="text/template" id="t-activity-log">
+    <%
+      var log = log || '';
+    %>
+    <pre><%= log %></pre>
+  </script>  
 
 </body>
 </html>
