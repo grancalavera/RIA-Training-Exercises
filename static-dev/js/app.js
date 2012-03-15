@@ -270,7 +270,8 @@ function($, _, Backbone, facebook){
             isConnected: authResponse.get('status') === 'connected'
         });
 
-        // logActivity(origin);
+        logActivity(origin);
+
     }
 
     function logActivity(origin) {

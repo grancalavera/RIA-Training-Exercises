@@ -1,6 +1,9 @@
 section {
   padding-top:30px;
 }
+.well {
+  border: none;  
+}
 
 /*#fb-login { float: right; }*/
 #fb-login .fb-login-button { margin-top:8px; }

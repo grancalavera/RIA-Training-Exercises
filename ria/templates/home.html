@@ -75,28 +75,105 @@
       <p class="lead">All-in-One presentation</p>
     </header>
 
-<!-- -----------------------------------
+
+<!-- --------------------------------------------------------------------------- 
 
   Utils
 
------------------------------------- -->
+---------------------------------------------------------------------------- -->
     <section id="utils">
       <div class="page-header">
         <h1>Utilities</h1>
       </div>
       <div class="row">
+
+<!-- -----------------------------------
+
+  Utils: description
+
+------------------------------------ -->
         <div class="span3 columns">
           <h3>Under the hood</h3>
           <p>Keep track of the internal state of the application.</p>
         </div>
         <div class="span9 columns">
+
+<!-- -----------------------------------
+
+  Utils: Activity logger
+
+------------------------------------ -->
           <h2>Activity</h2>
           <p>Every time there is a change on the <code>authResponse</code>, the 
             <code>user</code> or the <code>permissions</code>, an activity event
             is raised, and the application state is mofified accordingly.</p>
             <p>Turning the activity log on allows you to see the changes in the 
               application state.</p>
-            <button class="btn btn-primary" data-toggle="button">Log activity</button>
+            <!-- <button class="btn btn-primary" data-toggle="button">Log activity</button> -->
+
+            <div class="well">
+
+              <div class="modal" style="position: relative; top: auto; left: auto; margin: 0 auto; z-index: 1; width:100%">
+                <div class="modal-header">
+                  <h3>Activity log</h3>
+                </div>
+                <div class="modal-body" style="height:360px;overflow:auto">
+<!--
+-->
+<pre>
+-----------------------------------------------------
+Activity origin:       authResponse
+-----------------------------------------------------
+Timestamp:             1331824626226
+Status:                connected
+Requested permissions: user_birthday
+Granted permissions:   
+User id:               null
+User name:             null
+Is connected:          undefined
+Has user:              undefined
+Has all permissions:   undefined
+-----------------------------------------------------
+</pre>
+ 
+<pre>
+-----------------------------------------------------
+Activity origin:       user
+-----------------------------------------------------
+Timestamp:             1331824627019
+Status:                connected
+Requested permissions: user_birthday
+Granted permissions:   
+User id:               100002119090959
+User name:             Arturo Pex
+Is connected:          undefined
+Has user:              undefined
+Has all permissions:   undefined
+-----------------------------------------------------
+</pre> 
+ 
+<pre>
+-----------------------------------------------------
+Activity origin:       permissions
+-----------------------------------------------------
+Timestamp:             1331824627210
+Status:                connected
+Requested permissions: user_birthday
+Granted permissions:   installed,user_birthday
+User id:               100002119090959
+User name:             Arturo Pex
+Is connected:          undefined
+Has user:              undefined
+Has all permissions:   undefined
+-----------------------------------------------------
+</pre> 
+                </div>
+                <div class="modal-footer">
+                  <button href="#" class="btn btn-primary" data-toggle="button">Start</button>
+                  <button href="#" class="btn" >Clear</button>
+                </div>
+              </div>
+
         </div>
       </div>
     </section>
@@ -117,7 +194,7 @@
 
 <!-- -----------------------------------
 
-  Description
+  Facebook: description
 
 ------------------------------------ -->
       <div class="span3 columns">
@@ -125,8 +202,8 @@
         <p>General use of Facebook Graph API, authentication, plug ins and more.</p>
         <p>TODO: How it works.</p>
       </div>
-
       <div class="span9 columns">
+
 <!-- -----------------------------------
 
   Send plug-in
@@ -134,7 +211,9 @@
 ------------------------------------ -->
         <h2>Send Plugin</h2>
         <p>This will share the plugins page:</p>
-        <div class="fb-send" data-href="http://developers.facebook.com/docs/reference/plugins/send/"></div>
+        <div class="well">
+          <div class="fb-send" data-href="http://developers.facebook.com/docs/reference/plugins/send/"></div>
+        </div>
         <hr>
 
 <!-- -----------------------------------
@@ -144,7 +223,9 @@
 ------------------------------------ -->
         <h2>Authentication</h2>
         <p>Login wiht <code>user_birthday</code> permissions:</p>
-        <div id="fb-login"></div>
+        <div class="well">
+          <div id="fb-login"></div>
+        </div>
         <hr>
 
 <!-- -----------------------------------
@@ -154,7 +235,9 @@
 ------------------------------------ -->
         <h2>Basic Permissions</h2>
         <p>Reading data aquired <code>user_birthday</code> and reacting to it:</p>
-        <div id="suggested-content"></div>
+        <div class="well">
+          <div id="suggested-content"></div>
+        </div>
         <hr>
 
 <!-- -----------------------------------
@@ -170,7 +253,9 @@
           <li><a href="http://developers.facebook.com/docs/reference/dialogs/send/" 
             title="Facebook send dialog">Send</a></li>
         </ul>
-        <div id="sharing-links"></div>
+        <div class="well">
+          <div id="sharing-links"></div>
+        </div>
         <hr>
       </div>
     </div>
