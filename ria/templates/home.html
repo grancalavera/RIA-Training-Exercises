@@ -6,8 +6,14 @@
 <head>
   <meta charset="utf-8">
   <title>RIA Training</title>
-  <meta name="viewport" content="width=device-width">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+
+<!-- ---------------------------------------------------------------------------
+
+  Styles
+
+---------------------------------------------------------------------------- -->
     <link href="{{ STATIC_URL }}css/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
     <style>
       body {
@@ -17,10 +23,26 @@
     <link href="{{ STATIC_URL }}css/libs/bootstrap/bootstrap-responsive.css" rel="stylesheet">
     <link href="{{ STATIC_URL }}css/facebook/facebook.css" rel="stylesheet">
 
+
+<!-- --------------------------------------------------------------------------- 
+
+  Scripts
+
+---------------------------------------------------------------------------- -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
     <script data-main="{{ STATIC_URL }}js/main" src="{{ STATIC_URL }}js/require.js"></script>
+
 </head>
 <body>
 
+
+<!-- --------------------------------------------------------------------------- 
+
+  Navigation bar
+
+---------------------------------------------------------------------------- -->
   <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
       <div class="container">
@@ -29,34 +51,154 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </a>
-        <div id="fb-login"></div>
-        <a class="brand" href="#">RIA Training</a>
+        <a class="brand" href="#">Razorfish</a>
 
         <div class="nav-collapse">
           <ul class="nav">
-<!--             <li class="active"><a href="#">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>
- -->          </ul>
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="/docs">Documentation</a></li>
+          </ul>
         </div><!--/.nav-collapse -->
       </div>
     </div>
   </div>
 
-  <div id="content" class="container">
-    <h1><div class="fb-send right" data-href="http://example.com"></div>Age aware content </h1>
-    <div id="suggested-content"></div>
-    <div id="sharing-links"></div>
-  </div> <!-- /container -->
-  
-  <!-- Templates -->
 
+<!-- --------------------------------------------------------------------------- 
+
+  Master header
+
+---------------------------------------------------------------------------- -->
+  <div class="container" id="content">
+    <header class="jumbotron subhead" id="ria-header">
+      <h1>RIA Training Exercises</h1>
+      <p class="lead">All-in-One presentation</p>
+    </header>
+
+<!-- -----------------------------------
+
+  Utils
+
+------------------------------------ -->
+    <section id="utils">
+      <div class="page-header">
+        <h1>Utilities</h1>
+      </div>
+      <div class="row">
+        <div class="span3 columns">
+          <h3>Under the hood</h3>
+          <p>Keep track of the internal state of the application.</p>
+        </div>
+        <div class="span9 columns">
+          <h2>Activity</h2>
+          <p>Every time there is a change on the <code>authResponse</code>, the 
+            <code>user</code> or the <code>permissions</code>, an activity event
+            is raised, and the application state is mofified accordingly.</p>
+            <p>Turning the activity log on allows you to see the changes in the 
+              application state.</p>
+            <button class="btn btn-primary" data-toggle="button">Log activity</button>
+        </div>
+      </div>
+    </section>
+
+
+<!-- --------------------------------------------------------------------------- 
+
+  Facebook
+
+---------------------------------------------------------------------------- -->
+
+  <section id="facebook">
+
+    <div class="page-header">
+      <h1>Facebook</h1>
+    </div>
+    <div class="row">
+
+<!-- -----------------------------------
+
+  Description
+
+------------------------------------ -->
+      <div class="span3 columns">
+        <h3>From the Social Plugins to the Graph API</h3>
+        <p>General use of Facebook Graph API, authentication, plug ins and more.</p>
+        <p>TODO: How it works.</p>
+      </div>
+
+      <div class="span9 columns">
+<!-- -----------------------------------
+
+  Send plug-in
+
+------------------------------------ -->
+        <h2>Send Plugin</h2>
+        <p>This will share the plugins page:</p>
+        <div class="fb-send" data-href="http://developers.facebook.com/docs/reference/plugins/send/"></div>
+        <hr>
+
+<!-- -----------------------------------
+
+  Authentication
+
+------------------------------------ -->
+        <h2>Authentication</h2>
+        <p>Login wiht <code>user_birthday</code> permissions:</p>
+        <div id="fb-login"></div>
+        <hr>
+
+<!-- -----------------------------------
+
+  Basic permissions
+
+------------------------------------ -->
+        <h2>Basic Permissions</h2>
+        <p>Reading data aquired <code>user_birthday</code> and reacting to it:</p>
+        <div id="suggested-content"></div>
+        <hr>
+
+<!-- -----------------------------------
+
+  Dialogs
+
+------------------------------------ -->
+        <h2>Dialogs</h2>
+        <p>Two Facebook dialogs implemented:</p>
+        <ul>
+          <li><a href="http://developers.facebook.com/docs/reference/dialogs/feed/" 
+            title="Facebook feed dialog">Feed</a></li>
+          <li><a href="http://developers.facebook.com/docs/reference/dialogs/send/" 
+            title="Facebook send dialog">Send</a></li>
+        </ul>
+        <div id="sharing-links"></div>
+        <hr>
+      </div>
+    </div>
+  </section>
+
+
+<!-- ---------------------------------------------------------------------------
+
+  Templates
+
+---------------------------------------------------------------------------- -->
+
+<!-- -----------------------------------
+
+  Age aware content
+
+------------------------------------ -->
   <script type="text/template" id="t-suggestions">
     <div class="container ageAware">
         <p><span class="label <%= label %>"><%= access %></span><%= message %></p>
     </div>
   </script>
 
+<!-- -----------------------------------
+
+  All-purpose Facebook dialog link (defaults to feed dialog)
+
+------------------------------------ -->
   <script type="text/template" id="t-fb-dialog">
     <%
       var type = type || 'fb-feed';
