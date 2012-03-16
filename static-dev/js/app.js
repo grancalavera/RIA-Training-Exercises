@@ -24,14 +24,15 @@ function($, _, Backbone, facebook){
 
     // Module internal state
     var 
-        activityLog         =
-        ageAwareView        =
-        authResponse        =
-        mainModel           =
-        mainView            =
-        permissions         =
-        sharingLinksView    =
-        user                =
+        activityLog             =
+        additionalPermissions   =
+        ageAwareView            =
+        authResponse            =
+        mainModel               =
+        mainView                =
+        permissions             =
+        sharingLinksView        =
+        user                    =
         null;
 
     //--------------------------------------------------------------------------
@@ -96,14 +97,11 @@ function($, _, Backbone, facebook){
         },
 
         render: function() {
-
             this.hasAllPermissions = this.model.get('hasAllPermissions');
             this.hasUser = this.model.get('hasUser');
             this.isConnected = this.model.get('isConnected');
-
             this.toggleAgeAwareContent();
             this.toggleSharingLinks();
-            
             return this;
         },
 
@@ -229,7 +227,7 @@ function($, _, Backbone, facebook){
     var ActivityLogView = Backbone.View.extend({
         
         el: '#activity-log',
-        logging: false,
+        isLogging: false,
         doClear: false,
         buffer: [],
 
@@ -238,11 +236,20 @@ function($, _, Backbone, facebook){
             'click .clear': 'clear'
         },
 
+        initialize: function(){
+            if(this.options.enable) {
+                this.$('.toggle').button('toggle');
+                this.toggle();
+            }
+        },
+
         render: function() {
-            // Toggle button
-            if (this.logging) {
+
+            // Toggle button, account for log activation other than clicking 
+            // the button
+            if (this.isLogging) {
                 this.$('.toggle').html('Stop');
-            }else {
+            } else {
                 this.$('.toggle').html('Start');
             }
 
@@ -254,7 +261,7 @@ function($, _, Backbone, facebook){
             }
 
             // Log
-            if (this.logging && this.buffer.length) {
+            if (this.isLogging && this.buffer.length) {
 
                 this.$('.log').append(t('#t-activity-log')({
                     log: _.last(this.buffer)
@@ -269,9 +276,13 @@ function($, _, Backbone, facebook){
             return this;
         },
 
+        foo: function(){
+            this.$('.toggle').button('toggle');
+        },
+
         toggle: function(){
-            this.logging = !this.logging;
-            if (this.logging) {
+            this.isLogging = !this.isLogging
+            if (this.isLogging) {
                 this.model.bind('change', this.updateBuffer, this);
             } else {
                 this.model.unbind('change', this.updateBuffer, this);
@@ -286,6 +297,9 @@ function($, _, Backbone, facebook){
 
         updateBuffer: function(){
             var activity = [];
+            activity.push('--------------------------------------------------------------');
+            activity.push('Actity origin:         ' + mainModel.get('origin'));
+            activity.push('--------------------------------------------------------------');
             activity.push('Timestamp:             ' + new Date());
             activity.push('Status:                ' + authResponse.get('status'));
             activity.push('Requested permissions: ' + permissions.get('requested'));
@@ -295,17 +309,93 @@ function($, _, Backbone, facebook){
             activity.push('Is connected:          ' + mainModel.get('isConnected'));
             activity.push('Has user:              ' + mainModel.get('hasUser'));
             activity.push('Has all permissions:   ' + mainModel.get('hasAllPermissions'));
+            activity.push('--------------------------------------------------------------');
             this.buffer.push(activity.join('\n'));
             this.render();
         }
 
     });
 
-    //---------------------------------------------------------------------------
+    /**
+     * AdditionalPermissionsView
+     * 
+     * Prompts the user to grant additional permissions in exchange to be allowed
+     * to store he/her personal details on our database.
+     */
+    var AdditionalPermissionsView = Backbone.View.extend({
+        el: '#additional-permissions',
+        permissions: ['user_location', 'user_religion_politics', 'user_relationships'],
+        fields: ['relationship_status', 'religion', 'location'],
+        state: '', // missing-permissions, incomplete, complete
+
+        events: {
+            'click .grant-permissions': 'grantPermissions'
+        },
+
+        initialize: function (){
+            user.bind('change', this.handleActivity, this);
+            permissions.bind('change', this.handleActivity, this);
+        },
+
+        render: function(){
+            var template, context = {};
+            switch(this.state) {
+                case 'incomplete':
+                    template = t('#t-additional-permissions-granted');
+                    break;
+                case 'complete':
+                    template = t('#t-additional-permissions-granted');
+                    break;
+                case 'missing-permissions':
+                    template = t('#t-additional-permissions-prompt');
+                    break;
+                default:
+                    template = _.template('');
+            }
+            this.$el.html(template(context));
+            return this;
+        },
+
+        handleActivity: function() {
+            // permissions are updated AFTER the user is updated, so if we have
+            // been granted ALL the permissions and still we have missing fields
+            // that comes straight from the particular user profile
+
+            var hasAllFields, hasAllPermissions
+            
+            hasAllFields = _.all(this.fields, function(field){
+                user.get(field);
+            }, this);
+
+            hasAllPermissions = facebook.hasPermissionsTo(this.permissions);
+
+            if (hasAllFields) {
+                // Prompt to store his/her personal info with us
+                this.state = 'complete';
+            } else if (hasAllPermissions) {
+                // Prompt to store his/her personal info with us and suggest to 
+                // do a profile update with Facebook
+                this.state = 'incomplete';
+            } else {
+                // Prompt to grant more permissions to our app
+                this.state = 'missing-permissions';
+            }
+
+            this.render();
+        },
+
+        grantPermissions: function() {
+            facebook.addPermissions(this.permissions);
+            FB.login();
+        }
+
+    });
+
+    //--------------------------------------------------------------------------
     //
     // Module methods
     //
-    //---------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     /*! @ignore */
 
     function facebookInitHandler() {
@@ -318,12 +408,23 @@ function($, _, Backbone, facebook){
         user.on('change', activityHandler);
         authResponse.on('change', activityHandler);
         permissions.on('change', activityHandler);
-
-        activityLog = new ActivityLogView({model:mainModel});
+        
+        // user.on('change', printUser);
 
         $('#fb-login').html(facebook.createLoginView().render().el);
+
+        additionalPermissions = new AdditionalPermissionsView({});
+        additionalPermissions.render();
+
+        activityLog = new ActivityLogView({model:mainModel, enable:true});
+        activityLog.render();
+        
         mainView = new MainView({model:mainModel});
         mainView.render();
+    }
+
+    function printUser(){
+        console.log(user.toJSON());
     }
 
     function activityHandler(event) {
@@ -346,19 +447,17 @@ function($, _, Backbone, facebook){
         mainModel.set({
             hasAllPermissions: facebook.hasAllPermissions(),
             hasUser: !_.isNull(user.get('id')) && !_.isUndefined(user.get('id')),
-            isConnected: authResponse.get('status') === 'connected'
+            isConnected: authResponse.get('status') === 'connected',
+            origin: origin
         });
-
-        // logActivity(origin);
-
     }
 
 
-    //---------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     //
     // API
     //
-    //---------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
 
     /**
      * Initializes the main application
@@ -372,11 +471,11 @@ function($, _, Backbone, facebook){
         });
     }
 
-    //---------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     //
     // Exports
     //
-    //---------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
 
     /**
      * Exported APIs
